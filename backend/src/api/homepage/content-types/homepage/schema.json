@@ -24,10 +24,10 @@
         "audios"
       ]
     },
-    "buttononeText": {
+    "buttonOneText": {
       "type": "string"
     },
-    "buttontwoText": {
+    "buttonTwoText": {
       "type": "string"
     },
     "buttonOneUrl": {

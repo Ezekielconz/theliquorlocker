@@ -1,26 +1,27 @@
-// src/app/page.js
-import { fetchHomepage } from "../lib/strapi";
-import Hero from "../components/Hero";
+import Hero from '../components/Hero';
+import { getHomepage } from '../lib/strapi';
 
-export const revalidate = 60; // ISR: rebuild every minute
+export const revalidate = 60;
 
-export default async function Home() {
-  const {
-    heroTitle,
-    heroImage,
-    buttonOneText,
-    buttonOneUrl,
-    buttonTwoText,
-    buttonTwoUrl,
-  } = await fetchHomepage();
+export default async function HomePage() {
+  const homepage = await getHomepage();
+
+  if (!homepage) {
+    return (
+      <main>
+        <p>Content coming soon.</p>
+      </main>
+    );
+  }
 
   return (
     <main>
       <Hero
-        title={heroTitle}
-        imageUrl={heroImage.data.attributes.url}
-        buttonOne={{ text: buttonOneText, url: buttonOneUrl }}
-        buttonTwo={{ text: buttonTwoText, url: buttonTwoUrl }}
+        title={homepage.heroTitle}
+        imageUrl={homepage.heroImageUrl}
+        imageAlt={homepage.heroImageAlt}
+        buttonOne={{ text: homepage.buttonOneText, url: homepage.buttonOneUrl }}
+        buttonTwo={{ text: homepage.buttonTwoText, url: homepage.buttonTwoUrl }}
       />
     </main>
   );
