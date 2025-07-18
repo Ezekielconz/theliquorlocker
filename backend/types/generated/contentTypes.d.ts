@@ -429,7 +429,7 @@ export interface ApiHomepageHomepage extends Struct.SingleTypeSchema {
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     heroImage: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
-    heroTitle: Schema.Attribute.String;
+    heroTitle: Schema.Attribute.Text;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',

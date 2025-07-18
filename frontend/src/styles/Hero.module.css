@@ -1,39 +1,54 @@
 .hero {
   position: relative;
   width: 100%;
-  height: 80vh;
+  height: 100vh;
 }
 
 .overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background: rgba(255, 255, 255, 0.5);
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  color: #fff;
-  text-align: center;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 2rem 2rem 0;
+}
+
+.heroTitle {
+  font-family: 'Fraunces', serif;
+  font-size: 64px;
+  font-weight: bold;
+  color: #212121;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  margin: 20rem 0 0;
+  white-space: pre-line;
+  width: 100%;
+  text-align: left;
+  padding-left: 2rem;
 }
 
 .buttons {
   margin-top: 1.5rem;
+  padding-left: 2rem;
   display: flex;
   gap: 1rem;
+  width: 100%;
 }
 
-.primary {
-  padding: 0.75rem 1.5rem;
-  background: #fff;
-  color: #000;
-  border-radius: 4px;
-  text-decoration: none;
-}
-
+.primary,
 .secondary {
-  padding: 0.75rem 1.5rem;
-  border: 1px solid #fff;
-  border-radius: 4px;
-  text-decoration: none;
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: 1.1rem;
+  padding: 1rem 1.5rem;
+  background-color: #C17558;
   color: #fff;
+  text-decoration: none;
+  border: none;
+  border-radius: 4px;
+  flex: 0 0 25%;
+  min-width: 0;
+  text-align: center;
 }
