@@ -125,3 +125,25 @@ export async function getHomepage() {
     return null;
   }
 }
+
+/** About single type -> heroImage, pageTitle, heading, body */
+export async function getAboutPage() {
+  try {
+  const json = await fetchStrapi('/api/about', { query: { populate: '*' } });
+
+    const attrs = extractAttrs(json);
+    if (!attrs) return null;
+
+    const { url: heroImageUrl, alt: heroImageAlt } = getMediaFromStrapi(attrs.heroImage);
+    return {
+      heroImageUrl,
+      heroImageAlt,
+      pageTitle: attrs.pageTitle,
+      heading: attrs.heading,
+      body: attrs.body,
+    };
+  } catch (err) {
+    console.error('getAboutPage error:', err);
+    return null;
+  }
+}

@@ -1,0 +1,31 @@
+/* styles/PageHero.module.css */
+.hero {
+  display: flex;
+  width: 100%;
+  height: 10vh;           /* keep your shorter height */
+  overflow: hidden;
+}
+
+.imageWrapper {
+  position: relative;
+  flex: 0 0 50%;          /* fixed 50% of width */
+  height: 100%;
+}
+
+.textWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 50%;          /* the other 50% */
+  background-color: #D07854;
+}
+
+.title {
+  font-family: 'Fraunces', serif;
+  font-size: 4rem;        /* you can dial this up/down */
+  font-weight: bold;
+  color: #fff;
+  margin: 0;
+  text-align: center;
+  padding: 0 1rem;
+}
