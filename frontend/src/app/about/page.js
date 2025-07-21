@@ -15,10 +15,6 @@ export default async function AboutPage() {
         title={data.pageTitle}
         imageUrl={data.heroImageUrl}
         imageAlt={data.heroImageAlt}
-        accent="#D07854"          // map from Strapi when available
-        accentLight="#EAC1AF"     // ditto
-        angle={8}                 // tweak until it visually matches Figma
-        height="50vh"
       />
 
       <section className={styles.content}>
