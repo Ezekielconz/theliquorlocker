@@ -421,7 +421,7 @@ export interface ApiAboutAbout extends Struct.SingleTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
-    body: Schema.Attribute.Blocks;
+    body: Schema.Attribute.Text;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

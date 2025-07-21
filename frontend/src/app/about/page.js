@@ -19,10 +19,7 @@ export default async function AboutPage() {
 
       <section className={styles.content}>
         <h2 className={styles.heading}>{data.heading}</h2>
-        <div
-          className={styles.body}
-          dangerouslySetInnerHTML={{ __html: data.body }}
-        />
+        <div className={styles.body}>{data.body}</div>
       </section>
     </>
   )
