@@ -1,3 +1,5 @@
+export const revalidate = 60;
+
 export default function RangePage() {
   // If you have a Strapi “range” collection, you can fetch it here.
   // For now, just placeholder content:

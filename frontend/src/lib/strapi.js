@@ -1,18 +1,30 @@
-// Central helpers for Strapi access (v4 + v5 compatible parsing)
+// src/lib/strapi.js
+// Central helpers for Strapi access (v4 + v5 compatible, tuned for ISR)
+
+////////////////////////////////////////////////////////////
+// Config & constants
+////////////////////////////////////////////////////////////
 
 export const STRAPI_URL =
-  process.env.NEXT_PUBLIC_STRAPI_API_URL?.replace(/\/$/, '') ?? 'http://localhost:1337';
+  process.env.NEXT_PUBLIC_STRAPI_API_URL?.replace(/\/$/, '') ??
+  'http://localhost:1337';
 
-// Optional server-only token (keep Public role locked down if you use this)
+export const NAVIGATION_SLUG =
+  process.env.STRAPI_NAVIGATION_SLUG || 'navigation';
+
+export const HOMEPAGE_SLUG =
+  process.env.STRAPI_HOMEPAGE_SLUG || 'homepage';
+
 const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN || null;
 
-// Override these in .env.local if your API IDs differ
-export const NAVIGATION_SLUG = process.env.STRAPI_NAVIGATION_SLUG || 'navigation';
-export const HOMEPAGE_SLUG   = process.env.STRAPI_HOMEPAGE_SLUG   || 'homepage';
-
+export const DEFAULT_REVALIDATE = 60; // seconds
 const isDev = process.env.NODE_ENV === 'development';
 
-/** Make absolute URL from Strapi-relative path. */
+////////////////////////////////////////////////////////////
+// Utility functions
+////////////////////////////////////////////////////////////
+
+/** Turn a Strapi-relative path ("/uploads/…") into an absolute URL. */
 export function getStrapiURL(path = '') {
   if (!path) return STRAPI_URL;
   if (path.startsWith('http')) return path;
@@ -20,96 +32,106 @@ export function getStrapiURL(path = '') {
 }
 
 /**
- * Low-level fetch to Strapi. Supports {query:{...}} for search params.
- * Default cache: no-store (change per call if you want ISR).
+ * Low-level fetch wrapper.
+ * - Accepts `options.query` (object) which is serialised to the URL.
+ * - In prod defaults to `force-cache` so ISR can kick in.
+ * - Pass `options.nextRevalidate` to override revalidate seconds on this call only.
  */
-export async function fetchStrapi(path, options = {}) {
-  const { query, ...fetchOpts } = options;
+export async function fetchStrapi(
+  /** @type {string} */ path,
+  /** @type {{query?:Record<string,string>, nextRevalidate?:number}&RequestInit} */ options = {},
+) {
+  const { query, nextRevalidate, ...fetchOpts } = options;
 
+  // Build full URL + query-string
   let url = getStrapiURL(path);
   if (query && typeof query === 'object') {
-    const qs = new URLSearchParams();
-    for (const [k, v] of Object.entries(query)) {
-      if (v != null) qs.append(k, v);
-    }
-    url += (url.includes('?') ? '&' : '?') + qs.toString();
+    const params = new URLSearchParams();
+    Object.entries(query).forEach(([k, v]) => v != null && params.append(k, v));
+    url += (url.includes('?') ? '&' : '?') + params.toString();
   }
 
-  const headers = {
-    ...(STRAPI_TOKEN ? { Authorization: `Bearer ${STRAPI_TOKEN}` } : {}),
-    ...fetchOpts.headers,
-  };
+  // Default cache policy
+  const defaultCache = isDev ? 'no-store' : 'force-cache';
 
+  /** @type {RequestInit} */
   const reqInit = {
-    cache: 'no-store',
+    cache: defaultCache,
     ...fetchOpts,
-    headers,
+    headers: {
+      ...(STRAPI_TOKEN ? { Authorization: `Bearer ${STRAPI_TOKEN}` } : {}),
+      ...fetchOpts.headers,
+    },
+    // `next` is how we add per-request revalidation in Next 15
+    ...(nextRevalidate
+      ? { next: { revalidate: nextRevalidate } }
+      : {}),
   };
 
-  if (isDev) console.log('[fetchStrapi] →', url);
+  if (isDev) console.log('[fetchStrapi] →', url, reqInit);
   const res = await fetch(url, reqInit);
   if (isDev) console.log('[fetchStrapi] ←', res.status, res.statusText);
 
   if (!res.ok) {
     const text = await res.text().catch(() => '');
-    throw new Error(`Strapi request failed ${res.status} ${res.statusText}: ${text}`);
+    throw new Error(
+      `Strapi request failed ${res.status} ${res.statusText}: ${text}`,
+    );
   }
-
   return res.json();
 }
 
 /**
- * Helper: unify v4/v5 doc shape.
+ * Normalise document shape across Strapi versions.
  * v4: json.data.attributes
  * v5: json.data.<fields> directly
  */
 function extractAttrs(json) {
   if (!json || !json.data) return null;
-  const data = json.data;
-  return data.attributes ?? data;
+  return json.data.attributes ?? json.data; // v5: data IS attrs
 }
 
-/** Media normalizer -> {url, alt}. Accepts either relation wrapper or flat media obj. */
+/** Convert media relation → {url, alt}. */
 export function getMediaFromStrapi(mediaInput) {
   if (!mediaInput) return { url: null, alt: '' };
-  const attrs = mediaInput?.data?.attributes ?? mediaInput?.attributes ?? mediaInput;
-  const rawUrl = attrs?.url;
-  const alt = attrs?.alternativeText || attrs?.name || '';
+  const attrs =
+    mediaInput?.data?.attributes ?? mediaInput?.attributes ?? mediaInput;
   return {
-    url: rawUrl ? getStrapiURL(rawUrl) : null,
-    alt,
+    url: attrs?.url ? getStrapiURL(attrs.url) : null,
+    alt: attrs?.alternativeText || attrs?.name || '',
   };
 }
 
-/** Navigation single type -> {logoUrl, logoAlt}. */
+////////////////////////////////////////////////////////////
+// Domain-specific helpers
+////////////////////////////////////////////////////////////
+
+/** Fetch Navigation single-type → {logoUrl, logoAlt}. */
 export async function getNavigation() {
   try {
-    const json = await fetchStrapi(`/api/${NAVIGATION_SLUG}`, { query: { populate: 'logo' } });
+    const json = await fetchStrapi(`/api/${NAVIGATION_SLUG}`, {
+      query: { populate: 'logo' },
+    });
     const attrs = extractAttrs(json);
-    if (isDev) console.log('[getNavigation] attrs keys:', attrs ? Object.keys(attrs) : 'none');
-
     const { url, alt } = getMediaFromStrapi(attrs?.logo);
-    if (isDev) console.log('[getNavigation] parsed logoUrl:', url, 'alt:', alt);
-
-    return {
-      logoUrl: url,
-      logoAlt: alt || 'The Liquor Locker',
-    };
+    return { logoUrl: url, logoAlt: alt || 'The Liquor Locker' };
   } catch (err) {
     console.error('getNavigation error:', err);
     return { logoUrl: null, logoAlt: 'The Liquor Locker' };
   }
 }
 
-/** Homepage single type -> hero + CTA fields. */
+/** Fetch Homepage single-type → hero + CTA fields. */
 export async function getHomepage() {
   try {
-    const json = await fetchStrapi(`/api/${HOMEPAGE_SLUG}`, { query: { populate: 'heroImage' } });
+    const json = await fetchStrapi(`/api/${HOMEPAGE_SLUG}`, {
+      query: { populate: 'heroImage' },
+    });
     const attrs = extractAttrs(json);
-    if (!attrs) return null;
-
-    const { url: heroImageUrl, alt: heroImageAltRaw } = getMediaFromStrapi(attrs?.heroImage);
-    if (isDev) console.log('[getHomepage] parsed heroImageUrl:', heroImageUrl);
+    const {
+      url: heroImageUrl,
+      alt: heroImageAltRaw,
+    } = getMediaFromStrapi(attrs?.heroImage);
 
     return {
       heroTitle: attrs?.heroTitle ?? '',
@@ -126,21 +148,18 @@ export async function getHomepage() {
   }
 }
 
-/** About single type -> heroImage, pageTitle, heading, body */
+/** Fetch About single-type → hero image + rich content. */
 export async function getAboutPage() {
   try {
-  const json = await fetchStrapi('/api/about', { query: { populate: '*' } });
-
+    const json = await fetchStrapi('/api/about', { query: { populate: '*' } });
     const attrs = extractAttrs(json);
-    if (!attrs) return null;
-
-    const { url: heroImageUrl, alt: heroImageAlt } = getMediaFromStrapi(attrs.heroImage);
+    const { url, alt } = getMediaFromStrapi(attrs?.heroImage);
     return {
-      heroImageUrl,
-      heroImageAlt,
-      pageTitle: attrs.pageTitle,
-      heading: attrs.heading,
-      body: attrs.body,
+      heroImageUrl: url,
+      heroImageAlt: alt,
+      pageTitle: attrs?.pageTitle ?? '',
+      heading: attrs?.heading ?? '',
+      body: attrs?.body ?? '',
     };
   } catch (err) {
     console.error('getAboutPage error:', err);

@@ -1,3 +1,7 @@
+// src/app/layout.js
+
+export const revalidate = 60;
+
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import Navbar from '../components/Navbar'
