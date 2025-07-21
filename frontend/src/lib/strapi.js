@@ -148,24 +148,32 @@ export async function getHomepage() {
   }
 }
 
-/** Fetch About single-type → hero image + rich content. */
+/** Fetch About single-type → hero image + plain-text body. */
 export async function getAboutPage() {
   try {
-    const json = await fetchStrapi('/api/about', { query: { populate: '*' } });
-    const attrs = extractAttrs(json);
-    const { url, alt } = getMediaFromStrapi(attrs?.heroImage);
+    const json = await fetchStrapi('/api/about', {
+      query: {
+        populate: '*',     // keep media & other relations
+        format:   'text',  // ← ask Strapi for plain text
+      },
+    });
+
+    const attrs          = extractAttrs(json);
+    const { url, alt }   = getMediaFromStrapi(attrs?.heroImage);
+
     return {
       heroImageUrl: url,
       heroImageAlt: alt,
-      pageTitle: attrs?.pageTitle ?? '',
-      heading: attrs?.heading ?? '',
-      body: attrs?.body ?? '',
+      pageTitle:    attrs?.pageTitle ?? '',
+      heading:      attrs?.heading   ?? '',
+      body:         attrs?.body      ?? '',  // now a string, not blocks
     };
   } catch (err) {
     console.error('getAboutPage error:', err);
     return null;
   }
 }
+
 
 /** Fetch a Page collection-type by slug → { heroTitle, heroImageUrl, … } */
 export async function getPageBySlug(slug) {
