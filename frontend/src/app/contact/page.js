@@ -2,8 +2,6 @@
 
 import { useState } from 'react';
 
-export const revalidate = 60;
-
 export default function ContactPage() {
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   const handleChange = (e) =>
