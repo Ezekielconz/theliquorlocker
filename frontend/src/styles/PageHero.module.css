@@ -1,31 +1,54 @@
-/* styles/PageHero.module.css */
-.hero {
-  display: flex;
-  width: 100%;
-  height: 10vh;           /* keep your shorter height */
-  overflow: hidden;
+.hero{
+  position:relative;
+  display:flex;
+  width:100%;
+  height:30vh;
+  overflow:hidden;
+}
+.hero::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:#E5B7A5;
+  clip-path: polygon(
+    0    60%,  /* (1) left edge, 80 % down  – top-left corner      */
+    100% 10%,  /* (2) right edge, 50 % down – top-right corner     */
+    100% 30%,  /* (3) right edge, 55 % down – bottom-right corner  */
+    0    90%   /* (4) left edge, 85 % down  – bottom-left corner   */
+  );
+  z-index:0;
+  pointer-events:none;
 }
 
-.imageWrapper {
-  position: relative;
-  flex: 0 0 50%;          /* fixed 50% of width */
-  height: 100%;
+.imageWrapper{
+  position:relative;
+  flex:0 0 50%;
+  clip-path:polygon(0 0,100% 0,100% 50%,0 80%);
+  z-index:1;
+}
+.img{object-fit:cover;}
+
+.textWrapper{
+  position:relative;
+  flex:0 0 50%;
+  display:flex;
+  align-items:flex-start;
+  justify-content:flex-start;
+  padding:2rem 2rem 0 3rem;
+  background:#D07854;
+  text-align:left;
+  clip-path:polygon(0 0,100% 0,100% 20%,0 50%);
+  z-index:1;
 }
 
-.textWrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 50%;          /* the other 50% */
-  background-color: #D07854;
-}
-
-.title {
-  font-family: 'Fraunces', serif;
-  font-size: 4rem;        /* you can dial this up/down */
-  font-weight: bold;
-  color: #fff;
-  margin: 0;
-  text-align: center;
-  padding: 0 1rem;
+.title{
+  position:relative;
+  z-index:2;
+  font-family:'Fraunces',serif;
+  font-size:clamp(2.5rem,5vw,4rem);
+  font-weight:700;
+  color:#fff;
+  margin:0;
+  line-height:1.15;
+  max-width:14ch;
 }

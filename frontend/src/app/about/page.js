@@ -7,9 +7,7 @@ export const revalidate = 60
 
 export default async function AboutPage() {
   const data = await getAboutPage()
-  if (!data) {
-    return <p>About content coming soon.</p>
-  }
+  if (!data) return <p>About content coming soon.</p>
 
   return (
     <>
@@ -17,7 +15,9 @@ export default async function AboutPage() {
         title={data.pageTitle}
         imageUrl={data.heroImageUrl}
         imageAlt={data.heroImageAlt}
-        overlayColor="rgba(193,117,88,0.8)"
+        accent="#D07854"          // map from Strapi when available
+        accentLight="#EAC1AF"     // ditto
+        angle={8}                 // tweak until it visually matches Figma
         height="50vh"
       />
 

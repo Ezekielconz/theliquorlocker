@@ -166,3 +166,31 @@ export async function getAboutPage() {
     return null;
   }
 }
+
+/** Fetch a Page collection-type by slug → { heroTitle, heroImageUrl, … } */
+export async function getPageBySlug(slug) {
+  try {
+    const json = await fetchStrapi('/api/pages', {
+      query: {
+        'filters[slug][$eq]': slug,
+        populate: 'hero.image',          // deep-populate the media field
+      },
+    });
+
+    const attrs = extractAttrs(json)?.[0]; // first match
+    if (!attrs) return null;
+
+    const { url, alt } = getMediaFromStrapi(attrs.hero?.image);
+    return {
+      heroTitle: attrs.hero?.title ?? '',
+      heroAccent: attrs.hero?.accentColor ?? '#D07854',
+      heroSkew:   attrs.hero?.skewDegrees ?? 6,
+      heroImageUrl: url,
+      heroImageAlt: alt || attrs.hero?.title || 'Hero',
+      body: attrs.body ?? '',
+    };
+  } catch (err) {
+    console.error('getPageBySlug', err);
+    return null;
+  }
+}
