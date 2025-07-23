@@ -6,14 +6,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import styles from '../styles/Navbar.module.css';
 
-/**
- * Responsive navigation with animated underline on active link.
- */
 export default function Navbar({ logoUrl, logoAlt = 'The Liquor Locker' }) {
-  const pathname = usePathname();          // ← current route
+  const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  /* Close the mobile menu on route change */
   useEffect(() => {
     const handleRoute = () => setMenuOpen(false);
     window.addEventListener('next/navigation:before-navigate', handleRoute);
@@ -21,22 +17,17 @@ export default function Navbar({ logoUrl, logoAlt = 'The Liquor Locker' }) {
       window.removeEventListener('next/navigation:before-navigate', handleRoute);
   }, []);
 
-  /* Dev logging */
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
       console.log('[Navbar] logoUrl prop:', logoUrl);
     }
   }, [logoUrl]);
 
-  /* Helper to see if link matches current path */
   const isActive = (href) =>
-    href === '/'
-      ? pathname === '/'
-      : pathname.startsWith(href); // matches /about, /about/team, etc.
+    href === '/' ? pathname === '/' : pathname.startsWith(href);
 
   return (
     <nav className={styles.navbar}>
-      {/* Brand / logo */}
       <div className={styles.logo}>
         <Link href="/" className={styles.logoLink}>
           {logoUrl ? (
@@ -47,7 +38,6 @@ export default function Navbar({ logoUrl, logoAlt = 'The Liquor Locker' }) {
         </Link>
       </div>
 
-      {/* Hamburger (visible <768 px) */}
       <button
         aria-label="Toggle navigation"
         aria-expanded={menuOpen}
@@ -55,10 +45,11 @@ export default function Navbar({ logoUrl, logoAlt = 'The Liquor Locker' }) {
         onClick={() => setMenuOpen((o) => !o)}
         className={`${styles.hamburger} ${menuOpen ? styles.hamburgerOpen : ''}`}
       >
-        <span /><span /><span />
+        <span />
+        <span />
+        <span />
       </button>
 
-      {/* Nav links */}
       <ul
         id="primary-navigation"
         className={`${styles.navLinks} ${menuOpen ? styles.navLinksOpen : ''}`}
@@ -77,7 +68,7 @@ export default function Navbar({ logoUrl, logoAlt = 'The Liquor Locker' }) {
           </li>
         ))}
 
-        <li className={styles.navLink}>
+        <li className={`${styles.navLink} ${styles.noUnderline}`}>
           <Link href="/signup" className={styles.signupButton}>
             Sign Up
           </Link>
