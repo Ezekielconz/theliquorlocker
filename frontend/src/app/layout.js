@@ -1,46 +1,50 @@
-// src/app/layout.js
-
+// ── src/app/layout.js ───────────────────────────────────────────────────────
 export const revalidate = 60;
 
-import { Geist, Geist_Mono } from 'next/font/google'
-import './globals.css'
-import Navbar from '../components/Navbar'
-import Footer from '../components/Footer'
-import { getNavigation } from '../lib/strapi'
+import { Geist, Geist_Mono } from 'next/font/google';
+import './globals.css';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+import { getNavigation } from '../lib/strapi';
 
+/* ---------------------------------------------------------------------------
+   Load the variable versions and expose them as CSS custom-properties.
+   You’ll reference these variables in globals.css / Tailwind.
+--------------------------------------------------------------------------- */
 const geistSans = Geist({
-  variable: '--font-geist-sans',
   subsets: ['latin'],
-})
+  weight: ['300', '400', '500', '600'],
+  variable: '--font-sans',
+});
 
 const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
   subsets: ['latin'],
-})
+  weight: ['400'],
+  variable: '--font-mono',
+});
 
 export const metadata = {
   title: 'The Liquor Locker',
   description: 'Wine, Spirits & Beer Distributors',
-}
+};
 
 export default async function RootLayout({ children }) {
-  const navData = await getNavigation() // { logoUrl, logoAlt }
+  const navData = await getNavigation(); // { logoUrl, logoAlt }
 
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    /* ↓ Attach the font *variables* to <html>. They’ll cascade globally. */
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className="antialiased">
         <Navbar
           logoUrl={navData?.logoUrl ?? null}
           logoAlt={navData?.logoAlt ?? 'The Liquor Locker'}
         />
-
         <main>{children}</main>
-
         <Footer
           logoUrl={navData?.logoUrl ?? null}
           logoAlt={navData?.logoAlt ?? 'The Liquor Locker'}
         />
       </body>
     </html>
-  )
+  );
 }

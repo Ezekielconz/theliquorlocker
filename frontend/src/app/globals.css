@@ -1,28 +1,44 @@
-@import "tailwindcss";
+/* ── src/app/globals.css ─────────────────────────────────────────────────── */
 
+/* Import Tailwind’s base layers (via @tailwind directive or compiled build) */
+@import 'tailwindcss';
+
+/* ------------------------------------------------------------------------- */
+/*           CSS custom-properties + colour tokens for your brand            */
+/* ------------------------------------------------------------------------- */
 :root {
-  --background: #FFF8F0;
+  --background: #fff8f0;
   --foreground: #171717;
+
+  /* These inherit values from <html> class via next/font variable mode. */
+  --font-sans: var(--geist-font-sans, Geist); /* fallback just in case */
+  --font-mono: var(--geist-font-mono, 'Geist Mono');
 }
 
+/* Tailwind’s inline `@theme` helper (keeps design-tokens in one spot) */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 }
 
+/* Light / “champagne” background is your default; dark just tweaks text. */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #FFF8F0;
+    --background: #fff8f0;
     --foreground: #0a0a0a;
   }
 }
 
+/* ------------------------------------------------------------------------- */
+/*                Global element resets & base typography                    */
+/* ------------------------------------------------------------------------- */
+
 html,
 body {
   height: 100%;
-  margin: 0;                
+  margin: 0;
 }
 
 body {
@@ -30,7 +46,10 @@ body {
   flex-direction: column;
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), sans-serif;
+  font-weight: 300;  
+  letter-spacing: 0.015em;           /* luxe micro-tracking */
+  -webkit-font-smoothing: antialiased;
 }
 
 main {

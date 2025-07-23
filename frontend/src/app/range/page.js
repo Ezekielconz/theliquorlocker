@@ -1,7 +1,8 @@
+import PageHero       from '../../components/PageHero';
+
+export const revalidate = 60;
 
 export default function RangePage() {
-  // If you have a Strapi “range” collection, you can fetch it here.
-  // For now, just placeholder content:
   return (
     <main style={{ padding: '2rem', fontFamily: 'Fraunces, serif' }}>
       <h1>Our Range</h1>

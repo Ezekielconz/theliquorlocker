@@ -7,7 +7,7 @@ export const revalidate = 60;
 
 export default async function AboutPage() {
   const data = await getAboutPage();
-  if (!data) return <p>About content coming soon.</p>;
+  if (!data) return <p>About content</p>;
 
   return (
     <>

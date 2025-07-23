@@ -1,44 +1,102 @@
+/* ---------------- Base layout (unchanged) ------------------- */
 .navbar {
   z-index: 1000;
-  position: relative;  
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
   border-bottom: 1px solid #eaeaea;
-  background-color: #fff;
-  font-family: 'Fraunces', serif;
+  background: #fff;
+  font-family: inherit;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.3s ease;
 }
 
-.logo {
-  display: flex;
-  align-items: center;
-}
+.logo { display: flex; align-items: center; }
+.logoLink { display: inline-flex; align-items: center; text-decoration: none; }
 
+/* ---------------- Nav links & animated underline ------------ */
 .navLinks {
   list-style: none;
   display: flex;
-  gap: 2rem;
+  gap: 3rem;
   margin: 0;
   padding: 0;
   align-items: center;
 }
 
-.navLinks a {
+.navLink {
+  position: relative;                 /* needed for ::after */
+  padding-bottom: 0.25rem;            /* breathing room under text */
+}
+
+.navLink a {
   text-decoration: none;
   color: #000;
-  font-weight: 500;
-  font-size: 1.1rem;
+  font-weight: 300;
+  font-size: 1.0rem;
+  letter-spacing: 0.2em;
 }
 
-.navLinks a.signupButton {
-  color: #fff; 
+/* underline bar */
+.navLink::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 0;                           /* hidden by default */
+  background: #C17558;                /* brand colour */
+  transition: width 0.3s ease;
 }
 
+/* reveal on hover */
+.navLink:hover::after,
+.navLink:focus-visible::after {
+  width: 100%;
+}
+
+/* keep bar visible when page is active */
+.active::after {
+  width: 100%;
+}
+
+/* keep signup colour override */
+.navLink a.signupButton,
+.signupButton { color: #fff; }
+
+/* ---------------- Signup button tweaks ---------------------- */
 .signupButton {
   padding: 1rem 1.5rem;
-  background-color: #C17558;
-  color: #fff;
-  text-decoration: none;
+  background: #C17558;
+  border-radius: 4px;
+  transition: background 0.25s ease;
+}
+.signupButton:hover,
+.signupButton:focus-visible { background: #a55f48; }
+
+/* ---------------- Hamburger & mobile menu ------------------- */
+.hamburger { /* … as before … */ }
+.hamburger span { /* … as before … */ }
+.hamburgerOpen span:nth-child(1) { transform: translateY(9px) rotate(45deg); }
+.hamburgerOpen span:nth-child(2) { opacity: 0; }
+.hamburgerOpen span:nth-child(3) { transform: translateY(-9px) rotate(-45deg); }
+
+@media (max-width: 768px) {
+  .hamburger { display: flex; }
+
+  .navLinks {
+    position: absolute; top: 100%; right: 0; width: 100%;
+    flex-direction: column; gap: 1.25rem;
+    background: #fff; padding: 1.5rem 2rem 2rem;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    display: none;
+  }
+  .navLinksOpen { display: flex; }
+
+  /* full-width underline on mobile looks nicer */
+  .navLink::after { left: 0; right: 0; width: 100%; opacity: 0; }
+  .navLink:hover::after,
+  .active::after { opacity: 1; }
 }
