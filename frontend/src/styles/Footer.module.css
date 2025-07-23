@@ -1,45 +1,82 @@
-.footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 2rem;
-  background-color: #212121;
-  color: #C17558;
-  font-family: 'Fraunces', serif;
+.footer{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:2rem;
+  padding:2rem;
+  background:#212121;
+  color:#C17558;
+  font-family:inherit;
 }
 
-.column {
-  flex: 1;
-  min-width: 150px;
+/* --- Columns ---------------------------------------------------------- */
+.column{
+  flex:1;
+  min-width:150px;
+  display:flex;
+  justify-content:center;
+  padding:0 1.5rem;   /* interior breathing room */
 }
 
-/* Logo sits centered in its column */
-.logo {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* --- Logo -------------------------------------------------------------- */
+.logo{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  text-decoration:none;
+  color:inherit;
 }
 
-/* Company details styling */
-.details {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  text-align: center;
+/* --- Content blocks ---------------------------------------------------- */
+.details,
+.myDetails{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:.5rem;
+  text-align:center;
+  font-size:1rem;
 }
 
 .details a,
-.details span {
-  color: #C17558;
-  text-decoration: none;
-  font-size: 1rem;
+.details span,
+.creatorLink,
+.myDetails span{
+  color:#C17558;
+  text-decoration:none;
 }
 
-/* Your personal credit, right-aligned */
-.myDetails {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.25rem;
-  font-size: 1rem;
+.creatorLink{
+  font-weight:600;
+  transition:opacity .25s;
+}
+.creatorLink:hover,
+.creatorLink:focus-visible{opacity:.75;}
+
+/* --- Mobile: add a short horizontal divider --------------------------- */
+@media(max-width:768px){
+  .footer{
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+  }
+
+  .column{
+    width:100%;
+    padding:1.5rem 0;
+    position:relative;
+  }
+
+  /* short, centered line before every column except the first */
+  .column + .column::before{
+    content:'';
+    position:absolute;
+    top:0;
+    left:50%;
+    transform:translateX(-50%);
+    width:100px;           /* length of the divider */
+    height:1px;
+    background:rgba(255,255,255,.15);
+  }
 }
