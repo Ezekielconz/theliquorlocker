@@ -1,54 +1,84 @@
-.hero {
-  position: relative;
-  width: 100%;
-  height: 100vh;
+.hero{
+  position:relative;
+  width:100%;
+  height:100dvh;                     /* full device viewport */
 }
 
-.overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.5);
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-start;
-  padding: 2rem 2rem 0;
+.overlay{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+  align-items:flex-start;
+  padding:18vh 2rem 0;
+  gap:1.5rem;
 }
 
-.heroTitle {
-  font-family: 'Fraunces', serif;
-  font-size: 64px;
-  font-weight: bold;
-  color: #212121;
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  margin: 20rem 0 0;
-  white-space: pre-line;
-  width: 100%;
-  text-align: left;
-  padding-left: 2rem;
+.heroTitle{
+  font-family:inherit;
+  font-size:clamp(2.25rem,6vw,4rem);
+  font-weight:700;
+  color:#212121;
+  text-decoration:underline;
+  text-decoration-thickness:1px;
+  line-height:1.1;
+  white-space:pre-line;               /* preserves Strapi line-breaks */
+  max-width:40ch;
 }
 
-.buttons {
-  margin-top: 1.5rem;
-  padding-left: 2rem;
-  display: flex;
-  gap: 1rem;
-  width: 100%;
+.buttons{
+  display:flex;
+  gap:1rem;
+  width:100%;
 }
 
 .primary,
-.secondary {
-  font-family: 'Fraunces', serif;
-  font-weight: 500;
-  font-size: 1.1rem;
-  padding: 1rem 1.5rem;
-  background-color: #C17558;
-  color: #fff;
-  text-decoration: none;
-  border: none;
-  border-radius: 4px;
-  flex: 0 0 25%;
-  min-width: 0;
-  text-align: center;
+.secondary{
+  font-family:inherit;
+  font-weight:500;
+  font-size:.95rem;
+  padding:.65rem 1.25rem;
+  background:#C17558;
+  color:#fff;
+  text-decoration:none;
+  border:none;
+  border-radius:4px;
+  text-align:center;
+  flex:0 0 auto;
+  min-width:110px;
+  transition:background .25s,transform .25s,box-shadow .25s;
+}
+.primary:hover,
+.secondary:hover,
+.primary:focus-visible,
+.secondary:focus-visible{
+  background:#a55f48;
+  transform:translateY(-2px);
+  box-shadow:0 6px 14px rgba(0,0,0,.15);
+}
+
+@media(max-width:1024px){
+  .hero{height:100dvh;}
+  .overlay{padding:12vh 2rem 0;}
+}
+
+@media(max-width:768px){
+  .overlay{
+    align-items:center;
+    text-align:center;
+    padding:8vh 1.5rem 0;
+  }
+  .heroTitle{max-width:none;}
+  .buttons{
+    flex-direction:column;
+    align-items:stretch;
+  }
+  .primary,
+  .secondary{flex:1;min-width:0;}
+}
+
+@media(max-width:480px){
+  .overlay{padding:15vh 1.25rem 0;}
+  .heroTitle{font-size:clamp(1.75rem,8vw,2.5rem);}
 }
