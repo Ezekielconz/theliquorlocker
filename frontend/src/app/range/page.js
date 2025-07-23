@@ -1,16 +1,38 @@
-import PageHero       from '../../components/PageHero';
+// app/range/page.js
+import PageHero         from '../../components/PageHero';
+import { getRangePage } from '../../lib/strapi';
+import styles           from '../../styles/Range.module.css';
 
 export const revalidate = 60;
 
-export default function RangePage() {
+export default async function RangePage() {
+  const data = await getRangePage();
+  if (!data) return <p>Range content coming soon.</p>;
+
   return (
-    <main style={{ padding: '2rem', fontFamily: 'Fraunces, serif' }}>
-      <h1>Our Range</h1>
-      <ul style={{ lineHeight: 1.6 }}>
-        <li>Product A – A short description.</li>
-        <li>Product B – Another highlight.</li>
-        <li>Product C – What makes it special.</li>
-      </ul>
-    </main>
+    <>
+      <PageHero
+        title={data.pageTitle}
+        imageUrl={data.heroImageUrl}
+        imageAlt={data.heroImageAlt}
+      />
+
+      <main className={styles.main}>
+        {data.body && <p className={styles.body}>{data.body}</p>}
+
+        {/* open the PDF in a new tab */}
+        {data.buttonText && data.downloadFileUrl && (
+          <a
+            href={data.downloadFileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.button}
+            aria-label={data.downloadFileAlt}
+          >
+            {data.buttonText}
+          </a>
+        )}
+      </main>
+    </>
   );
 }

@@ -202,3 +202,36 @@ export async function getPageBySlug(slug) {
     return null;
   }
 }
+
+/** Fetch Range single-type → hero fields */
+export async function getRangePage() {
+  try {
+    const json = await fetchStrapi('/api/range', {
+      query: {
+        populate: '*',     // ← grab heroImage + downloadFile
+        format:   'text',
+      },
+    });
+
+    const attrs = extractAttrs(json);
+    if (!attrs) return null;
+
+    const hero     = getMediaFromStrapi(attrs.heroImage);
+    const download = getMediaFromStrapi(attrs.downloadFile);
+
+    return {
+      pageTitle:       attrs.pageTitle  ?? 'Our Range',
+      heroImageUrl:    hero.url,
+      heroImageAlt:    hero.alt || attrs.pageTitle || 'Range hero',
+
+      body:            attrs.body       ?? '',
+      buttonText:      attrs.buttonText ?? '',
+
+      downloadFileUrl: download.url,
+      downloadFileAlt: download.alt || 'PDF',
+    };
+  } catch (err) {
+    console.error('getRangePage error:', err);
+    return null;
+  }
+}

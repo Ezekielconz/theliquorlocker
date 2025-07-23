@@ -1,0 +1,47 @@
+{
+  "kind": "singleType",
+  "collectionName": "ranges",
+  "info": {
+    "singularName": "range",
+    "pluralName": "ranges",
+    "displayName": "Range"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "heroImage": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "heroImageAlt": {
+      "type": "string"
+    },
+    "pageTitle": {
+      "type": "string"
+    },
+    "body": {
+      "type": "text"
+    },
+    "buttonText": {
+      "type": "string"
+    },
+    "downloadFile": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    }
+  }
+}
