@@ -15,21 +15,23 @@ export default function SupplierBrowser({ suppliers = [] }) {
 
   const items = [];
   suppliers.forEach((s, i) => {
-    /* ───── logo card (logo only) ───── */
+    /* ───── logo card (logo OR fallback name) ───── */
     items.push(
       <li key={s.slug}>
         <button
           className={`${styles.card}${s.slug === activeSlug ? ` ${styles.active}` : ''}`}
           onClick={() => setActiveSlug(prev => (prev === s.slug ? null : s.slug))}
         >
-          {s.logoUrl && (
+          {s.logoUrl ? (
             <Image
               src={s.logoUrl}
-              alt={s.logoAlt}
+              alt={s.logoAlt || s.name}
               width={120}
               height={120}
               priority={false}
             />
+          ) : (
+            <span className={styles.fallbackName}>{s.name}</span>
           )}
         </button>
       </li>,
@@ -39,14 +41,14 @@ export default function SupplierBrowser({ suppliers = [] }) {
     const isRowEnd   = (i % ROW_SIZE === ROW_SIZE - 1) || i === suppliers.length - 1;
     const thisRowIdx = Math.floor(i / ROW_SIZE);
 
-    if (isRowEnd && thisRowIdx === activeRow) {
+    if (activeIndex !== -1 && isRowEnd && thisRowIdx === activeRow) {
       const sel = suppliers[activeIndex];
       items.push(
         <li key={`${sel.slug}-detail`} className={styles.detailItem}>
           {sel.coverUrl && (
             <Image
               src={sel.coverUrl}
-              alt={sel.coverAlt}
+              alt={sel.coverAlt || sel.name}
               width={1200}
               height={400}
               className={styles.cover}
@@ -70,7 +72,7 @@ export default function SupplierBrowser({ suppliers = [] }) {
                   {p.imageUrl && (
                     <Image
                       src={p.imageUrl}
-                      alt={p.imageAlt}
+                      alt={p.imageAlt || p.name}
                       width={60}
                       height={60}
                       className={styles.thumb}

@@ -25,11 +25,35 @@
   -webkit-filter: grayscale(1) brightness(0.3);
 }
 
-/* hover OR active → full-strength logo */
+/* fallback name box when no logo */
+.fallbackName {
+  width: 120px;
+  height: 120px;
+  border-radius: 8px;
+  background: #f1f1f1;
+  color: #333;
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 .5rem;
+  text-align: center;
+  opacity: 0.2;
+  transition: opacity 0.35s ease, background 0.35s ease, color 0.35s ease;
+}
+
+/* hover OR active → full-strength */
 .card:hover img,
 .active img {
   filter: none;
   opacity: 1;
+}
+.card:hover .fallbackName,
+.active .fallbackName {
+  opacity: 1;
+  background: #fff;
+  color: #000;
 }
 
 .card:hover  { transform: scale(1.05); }
