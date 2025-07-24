@@ -210,6 +210,7 @@ export async function getRangePage() {
       query: {
         populate: '*',   
         format:   'text',
+        status: process.env.NEXT_PUBLIC_PREVIEW === 'true' ? 'draft' : 'published',
       },
     });
 
