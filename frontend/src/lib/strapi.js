@@ -6,8 +6,7 @@
 ////////////////////////////////////////////////////////////
 
 export const STRAPI_URL =
-  process.env.NEXT_PUBLIC_STRAPI_API_URL?.replace(/\/$/, '') ??
-  'http://localhost:1337';
+  (process.env.NEXT_PUBLIC_STRAPI_API_URL || '').replace(/\/$/, '');
 
 export const NAVIGATION_SLUG = process.env.STRAPI_NAVIGATION_SLUG || 'navigation';
 export const HOMEPAGE_SLUG   = process.env.STRAPI_HOMEPAGE_SLUG   || 'homepage';
