@@ -11,8 +11,8 @@ export const STRAPI_URL =
 export const NAVIGATION_SLUG = process.env.STRAPI_NAVIGATION_SLUG || 'navigation';
 export const HOMEPAGE_SLUG   = process.env.STRAPI_HOMEPAGE_SLUG   || 'homepage';
 
-const STRAPI_TOKEN          = process.env.STRAPI_API_TOKEN || null;
-export const DEFAULT_REVALIDATE = 60;                    // seconds
+const STRAPI_TOKEN              = process.env.STRAPI_API_TOKEN || null;
+export const DEFAULT_REVALIDATE = 60;           // seconds
 const isDev = process.env.NODE_ENV === 'development';
 
 ////////////////////////////////////////////////////////////
@@ -57,7 +57,6 @@ export async function fetchStrapi(
       ...(STRAPI_TOKEN ? { Authorization: `Bearer ${STRAPI_TOKEN}` } : {}),
       ...fetchOpts.headers,
     },
-    // `next` is how we add per-request revalidation in Next 15
     ...(nextRevalidate ? { next: { revalidate: nextRevalidate } } : {}),
   };
 
@@ -85,8 +84,7 @@ function extractAttrs(json) {
 /** Convert media relation → {url, alt}. */
 export function getMediaFromStrapi(mediaInput) {
   if (!mediaInput) return { url: null, alt: '' };
-  const attrs =
-    mediaInput?.data?.attributes ?? mediaInput?.attributes ?? mediaInput;
+  const attrs = mediaInput?.data?.attributes ?? mediaInput?.attributes ?? mediaInput;
   return {
     url: attrs?.url ? getStrapiURL(attrs.url) : null,
     alt: attrs?.alternativeText || attrs?.name || '',
@@ -97,11 +95,10 @@ export function getMediaFromStrapi(mediaInput) {
 // Domain-specific helpers
 ////////////////////////////////////////////////////////////
 
-/** Fetch Navigation single-type → {logoUrl, logoAlt}. */
 export async function getNavigation() {
   try {
-    const json   = await fetchStrapi(`/api/${NAVIGATION_SLUG}`, { query: { populate: 'logo' } });
-    const attrs  = extractAttrs(json);
+    const json = await fetchStrapi(`/api/${NAVIGATION_SLUG}`, { query: { populate: 'logo' } });
+    const attrs = extractAttrs(json);
     const { url, alt } = getMediaFromStrapi(attrs?.logo);
     return { logoUrl: url, logoAlt: alt || 'The Liquor Locker' };
   } catch (err) {
@@ -110,10 +107,9 @@ export async function getNavigation() {
   }
 }
 
-/** Fetch Homepage single-type → hero + CTA fields. */
 export async function getHomepage() {
   try {
-    const json  = await fetchStrapi(`/api/${HOMEPAGE_SLUG}`, { query: { populate: 'heroImage' } });
+    const json = await fetchStrapi(`/api/${HOMEPAGE_SLUG}`, { query: { populate: 'heroImage' } });
     const attrs = extractAttrs(json);
 
     const { url: heroImageUrl, alt: heroImageAltRaw } = getMediaFromStrapi(attrs?.heroImage);
@@ -133,13 +129,10 @@ export async function getHomepage() {
   }
 }
 
-/** Fetch About single-type → hero image + plain-text body. */
 export async function getAboutPage() {
   try {
-    const json  = await fetchStrapi('/api/about', {
-      query: { populate: '*', format: 'text' },
-    });
-    const attrs        = extractAttrs(json);
+    const json = await fetchStrapi('/api/about', { query: { populate: '*', format: 'text' } });
+    const attrs = extractAttrs(json);
     const { url, alt } = getMediaFromStrapi(attrs?.heroImage);
 
     return {
@@ -155,21 +148,19 @@ export async function getAboutPage() {
   }
 }
 
-/** Fetch a Page collection-type by slug → { heroTitle, heroImageUrl, … } */
 export async function getPageBySlug(slug) {
   try {
-    const json  = await fetchStrapi('/api/pages', {
+    const json = await fetchStrapi('/api/pages', {
       query: { 'filters[slug][$eq]': slug, populate: 'hero.image' },
     });
-
-    const attrs = extractAttrs(json)?.[0];       // first match
+    const attrs = extractAttrs(json)?.[0];
     if (!attrs) return null;
 
     const { url, alt } = getMediaFromStrapi(attrs.hero?.image);
     return {
-      heroTitle:   attrs.hero?.title        ?? '',
-      heroAccent:  attrs.hero?.accentColor  ?? '#D07854',
-      heroSkew:    attrs.hero?.skewDegrees  ?? 6,
+      heroTitle:   attrs.hero?.title       ?? '',
+      heroAccent:  attrs.hero?.accentColor ?? '#D07854',
+      heroSkew:    attrs.hero?.skewDegrees ?? 6,
       heroImageUrl: url,
       heroImageAlt: alt || attrs.hero?.title || 'Hero',
       body: attrs.body ?? '',
@@ -180,7 +171,6 @@ export async function getPageBySlug(slug) {
   }
 }
 
-/** Fetch Range single-type → hero fields */
 export async function getRangePage() {
   try {
     const json = await fetchStrapi('/api/range', {
@@ -190,7 +180,6 @@ export async function getRangePage() {
         status: process.env.NEXT_PUBLIC_PREVIEW === 'true' ? 'draft' : 'published',
       },
     });
-
     const attrs = extractAttrs(json);
     if (!attrs) return null;
 
@@ -201,10 +190,8 @@ export async function getRangePage() {
       pageTitle:       attrs.pageTitle  ?? 'Our Range',
       heroImageUrl:    hero.url,
       heroImageAlt:    hero.alt || attrs.pageTitle || 'Range hero',
-
       body:            attrs.body       ?? '',
       buttonText:      attrs.buttonText ?? '',
-
       downloadFileUrl: download.url,
       downloadFileAlt: download.alt || 'PDF',
     };
@@ -214,14 +201,13 @@ export async function getRangePage() {
   }
 }
 
-/** ↓ Helper for repeatable *Size Option* component */
+/* Helper for repeatable *Size Option* component */
 export function extractSizes(sizeArray = []) {
   return (
-    sizeArray
+    (sizeArray || [])
       .map((s) => {
-        const item = s?.attributes ?? s;   // v4 vs v5
-        // support either field name just in case
-        return item.size ?? item.sizeOption;
+        const item = s?.attributes ?? s;
+        return item.size ?? item.sizeOption ?? null;
       })
       .filter(Boolean)
   );
@@ -231,18 +217,25 @@ export function extractSizes(sizeArray = []) {
 // Suppliers
 ////////////////////////////////////////////////////////////////////////
 
-/** 7 · All suppliers, full detail – used by SupplierBrowser */
+/* 7 · All suppliers, full detail – used by <SupplierBrowser /> */
 export async function getSuppliersWithDetails() {
   const json = await fetchStrapi('/api/suppliers', {
     query: {
-      populate: '*',
       sort: 'name:asc',
       format: 'text',
+
+      // one-level media
+      'populate[logo]': 'true',
+      'populate[coverImage]': 'true',
+
+      // deep-populate product image + sizeOption component
+      'populate[products][populate][image]': 'true',
+      'populate[products][populate][sizeOption]': 'true',
     },
   });
 
   return (json.data || []).map((item) => {
-    const attrs = item.attributes ?? item;         // v4 vs v5
+    const attrs = item.attributes ?? item;
 
     const logo  = getMediaFromStrapi(attrs.logo);
     const cover = getMediaFromStrapi(attrs.coverImage);
@@ -266,7 +259,7 @@ export async function getSuppliersWithDetails() {
         return {
           id:    p.id ?? pAttrs.id,
           name:  pAttrs.name,
-          sizes: extractSizes(pAttrs.sizeOption),   // repeatable component
+          sizes: extractSizes(pAttrs.sizeOption),
           imageUrl: img.url,
           imageAlt: img.alt || pAttrs.name,
         };
@@ -275,13 +268,16 @@ export async function getSuppliersWithDetails() {
   });
 }
 
-/** 8 · Single supplier by slug */
+/* 8 · Single supplier by slug */
 export async function getSupplierBySlug(slug) {
   const json = await fetchStrapi('/api/suppliers', {
     query: {
       'filters[slug][$eq]': slug,
-      populate: '*',
       format: 'text',
+
+      'populate[coverImage]': 'true',
+      'populate[products][populate][image]': 'true',
+      'populate[products][populate][sizeOption]': 'true',
     },
   });
 
