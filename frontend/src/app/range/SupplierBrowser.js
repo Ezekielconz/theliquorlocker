@@ -15,7 +15,7 @@ export default function SupplierBrowser({ suppliers = [] }) {
 
   const items = [];
   suppliers.forEach((s, i) => {
-    /* ───── logo card ───── */
+    /* ───── logo card (logo only) ───── */
     items.push(
       <li key={s.slug}>
         <button
@@ -31,12 +31,11 @@ export default function SupplierBrowser({ suppliers = [] }) {
               priority={false}
             />
           )}
-          <span>{s.name}</span>
         </button>
       </li>,
     );
 
-    /* ───── end of row? insert detail if this row is active ───── */
+    /* insert detail at end of its row */
     const isRowEnd   = (i % ROW_SIZE === ROW_SIZE - 1) || i === suppliers.length - 1;
     const thisRowIdx = Math.floor(i / ROW_SIZE);
 
