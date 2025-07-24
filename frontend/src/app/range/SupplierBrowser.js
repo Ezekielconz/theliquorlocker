@@ -1,48 +1,53 @@
 /* eslint-disable react/prop-types */
-"use client";
+'use client';
 
-import { useState } from "react";
-import Image        from "next/image";
-import styles       from "../../styles/SupplierBrowser.module.css";
+import { useState } from 'react';
+import Image from 'next/image';
+import styles from '../../styles/SupplierBrowser.module.css';
+
+const ROW_SIZE = 4; // logos per row
 
 export default function SupplierBrowser({ suppliers = [] }) {
-  const [activeSlug, setActiveSlug] = useState(null);           // clicked icon
-  const selected = suppliers.find((s) => s.slug === activeSlug);
+  const [activeSlug, setActiveSlug] = useState(null);
 
-  return (
-    <>
-      {/* ───── supplier icon grid ───── */}
-      <ul className={styles.grid}>
-        {suppliers.map((s) => (
-          <li key={s.slug}>
-            <button
-              className={`${styles.card}${
-                s.slug === activeSlug ? ` ${styles.active}` : ""
-              }`}
-              onClick={() => setActiveSlug(s.slug)}
-            >
-              {s.logoUrl && (
-                <Image
-                  src={s.logoUrl}
-                  alt={s.logoAlt}
-                  width={120}
-                  height={120}
-                  priority={false}
-                />
-              )}
-              <span>{s.name}</span>
-            </button>
-          </li>
-        ))}
-      </ul>
+  const activeIndex = suppliers.findIndex((s) => s.slug === activeSlug);
+  const activeRow   = activeIndex === -1 ? -1 : Math.floor(activeIndex / ROW_SIZE);
 
-      {/* ───── detail panel ───── */}
-      {selected && (
-        <section className={styles.detail}>
-          {selected.coverUrl && (
+  const items = [];
+  suppliers.forEach((s, i) => {
+    /* ───── logo card ───── */
+    items.push(
+      <li key={s.slug}>
+        <button
+          className={`${styles.card}${s.slug === activeSlug ? ` ${styles.active}` : ''}`}
+          onClick={() => setActiveSlug(prev => (prev === s.slug ? null : s.slug))}
+        >
+          {s.logoUrl && (
             <Image
-              src={selected.coverUrl}
-              alt={selected.coverAlt}
+              src={s.logoUrl}
+              alt={s.logoAlt}
+              width={120}
+              height={120}
+              priority={false}
+            />
+          )}
+          <span>{s.name}</span>
+        </button>
+      </li>,
+    );
+
+    /* ───── end of row? insert detail if this row is active ───── */
+    const isRowEnd   = (i % ROW_SIZE === ROW_SIZE - 1) || i === suppliers.length - 1;
+    const thisRowIdx = Math.floor(i / ROW_SIZE);
+
+    if (isRowEnd && thisRowIdx === activeRow) {
+      const sel = suppliers[activeIndex];
+      items.push(
+        <li key={`${sel.slug}-detail`} className={styles.detailItem}>
+          {sel.coverUrl && (
+            <Image
+              src={sel.coverUrl}
+              alt={sel.coverAlt}
               width={1200}
               height={400}
               className={styles.cover}
@@ -50,18 +55,18 @@ export default function SupplierBrowser({ suppliers = [] }) {
             />
           )}
 
-          <h2 className={styles.title}>{selected.name}</h2>
+          <h2 className={styles.title}>{sel.name}</h2>
 
-          {selected.description && (
-            <p className={styles.description}>{selected.description}</p>
+          {sel.description && (
+            <p className={styles.description}>{sel.description}</p>
           )}
 
           <h3 className={styles.subtitle}>Products</h3>
-          {selected.products.length === 0 ? (
+          {sel.products.length === 0 ? (
             <p>(No products linked yet)</p>
           ) : (
             <ul className={styles.products}>
-              {selected.products.map((p) => (
+              {sel.products.map((p) => (
                 <li key={p.id} className={styles.productItem}>
                   {p.imageUrl && (
                     <Image
@@ -72,19 +77,18 @@ export default function SupplierBrowser({ suppliers = [] }) {
                       className={styles.thumb}
                     />
                   )}
-
                   <div>
-                    <strong>{p.name}</strong>{" "}
-                    {p.sizes.length > 0 && (
-                      <em>({p.sizes.join(", ")})</em>
-                    )}
+                    <strong>{p.name}</strong>{' '}
+                    {p.sizes.length > 0 && <em>({p.sizes.join(', ')})</em>}
                   </div>
                 </li>
               ))}
             </ul>
           )}
-        </section>
-      )}
-    </>
-  );
+        </li>,
+      );
+    }
+  });
+
+  return <ul className={styles.grid}>{items}</ul>;
 }
