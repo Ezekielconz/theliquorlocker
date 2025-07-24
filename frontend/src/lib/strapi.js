@@ -9,15 +9,11 @@ export const STRAPI_URL =
   process.env.NEXT_PUBLIC_STRAPI_API_URL?.replace(/\/$/, '') ??
   'http://localhost:1337';
 
-export const NAVIGATION_SLUG =
-  process.env.STRAPI_NAVIGATION_SLUG || 'navigation';
+export const NAVIGATION_SLUG = process.env.STRAPI_NAVIGATION_SLUG || 'navigation';
+export const HOMEPAGE_SLUG   = process.env.STRAPI_HOMEPAGE_SLUG   || 'homepage';
 
-export const HOMEPAGE_SLUG =
-  process.env.STRAPI_HOMEPAGE_SLUG || 'homepage';
-
-const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN || null;
-
-export const DEFAULT_REVALIDATE = 60; // seconds
+const STRAPI_TOKEN          = process.env.STRAPI_API_TOKEN || null;
+export const DEFAULT_REVALIDATE = 60;                    // seconds
 const isDev = process.env.NODE_ENV === 'development';
 
 ////////////////////////////////////////////////////////////
@@ -63,9 +59,7 @@ export async function fetchStrapi(
       ...fetchOpts.headers,
     },
     // `next` is how we add per-request revalidation in Next 15
-    ...(nextRevalidate
-      ? { next: { revalidate: nextRevalidate } }
-      : {}),
+    ...(nextRevalidate ? { next: { revalidate: nextRevalidate } } : {}),
   };
 
   if (isDev) console.log('[fetchStrapi] →', url, reqInit);
@@ -74,9 +68,7 @@ export async function fetchStrapi(
 
   if (!res.ok) {
     const text = await res.text().catch(() => '');
-    throw new Error(
-      `Strapi request failed ${res.status} ${res.statusText}: ${text}`,
-    );
+    throw new Error(`Strapi request failed ${res.status} ${res.statusText}: ${text}`);
   }
   return res.json();
 }
@@ -88,7 +80,7 @@ export async function fetchStrapi(
  */
 function extractAttrs(json) {
   if (!json || !json.data) return null;
-  return json.data.attributes ?? json.data; // v5: data IS attrs
+  return json.data.attributes ?? json.data;   // v5: data IS attrs
 }
 
 /** Convert media relation → {url, alt}. */
@@ -109,10 +101,8 @@ export function getMediaFromStrapi(mediaInput) {
 /** Fetch Navigation single-type → {logoUrl, logoAlt}. */
 export async function getNavigation() {
   try {
-    const json = await fetchStrapi(`/api/${NAVIGATION_SLUG}`, {
-      query: { populate: 'logo' },
-    });
-    const attrs = extractAttrs(json);
+    const json   = await fetchStrapi(`/api/${NAVIGATION_SLUG}`, { query: { populate: 'logo' } });
+    const attrs  = extractAttrs(json);
     const { url, alt } = getMediaFromStrapi(attrs?.logo);
     return { logoUrl: url, logoAlt: alt || 'The Liquor Locker' };
   } catch (err) {
@@ -124,23 +114,19 @@ export async function getNavigation() {
 /** Fetch Homepage single-type → hero + CTA fields. */
 export async function getHomepage() {
   try {
-    const json = await fetchStrapi(`/api/${HOMEPAGE_SLUG}`, {
-      query: { populate: 'heroImage' },
-    });
+    const json  = await fetchStrapi(`/api/${HOMEPAGE_SLUG}`, { query: { populate: 'heroImage' } });
     const attrs = extractAttrs(json);
-    const {
-      url: heroImageUrl,
-      alt: heroImageAltRaw,
-    } = getMediaFromStrapi(attrs?.heroImage);
+
+    const { url: heroImageUrl, alt: heroImageAltRaw } = getMediaFromStrapi(attrs?.heroImage);
 
     return {
       heroTitle: attrs?.heroTitle ?? '',
       heroImageUrl,
       heroImageAlt: heroImageAltRaw || attrs?.heroTitle || 'Homepage hero',
       buttonOneText: attrs?.buttonOneText ?? '',
-      buttonOneUrl: attrs?.buttonOneUrl ?? '#',
+      buttonOneUrl:  attrs?.buttonOneUrl  ?? '#',
       buttonTwoText: attrs?.buttonTwoText ?? '',
-      buttonTwoUrl: attrs?.buttonTwoUrl ?? '#',
+      buttonTwoUrl:  attrs?.buttonTwoUrl  ?? '#',
     };
   } catch (err) {
     console.error('getHomepage error:', err);
@@ -151,22 +137,18 @@ export async function getHomepage() {
 /** Fetch About single-type → hero image + plain-text body. */
 export async function getAboutPage() {
   try {
-    const json = await fetchStrapi('/api/about', {
-      query: {
-        populate: '*',     // keep media & other relations
-        format:   'text',  // ← ask Strapi for plain text
-      },
+    const json  = await fetchStrapi('/api/about', {
+      query: { populate: '*', format: 'text' },
     });
-
-    const attrs          = extractAttrs(json);
-    const { url, alt }   = getMediaFromStrapi(attrs?.heroImage);
+    const attrs        = extractAttrs(json);
+    const { url, alt } = getMediaFromStrapi(attrs?.heroImage);
 
     return {
       heroImageUrl: url,
       heroImageAlt: alt,
       pageTitle:    attrs?.pageTitle ?? '',
       heading:      attrs?.heading   ?? '',
-      body:         attrs?.body      ?? '',  // now a string, not blocks
+      body:         attrs?.body      ?? '',
     };
   } catch (err) {
     console.error('getAboutPage error:', err);
@@ -174,25 +156,21 @@ export async function getAboutPage() {
   }
 }
 
-
 /** Fetch a Page collection-type by slug → { heroTitle, heroImageUrl, … } */
 export async function getPageBySlug(slug) {
   try {
-    const json = await fetchStrapi('/api/pages', {
-      query: {
-        'filters[slug][$eq]': slug,
-        populate: 'hero.image',          // deep-populate the media field
-      },
+    const json  = await fetchStrapi('/api/pages', {
+      query: { 'filters[slug][$eq]': slug, populate: 'hero.image' },
     });
 
-    const attrs = extractAttrs(json)?.[0]; // first match
+    const attrs = extractAttrs(json)?.[0];       // first match
     if (!attrs) return null;
 
     const { url, alt } = getMediaFromStrapi(attrs.hero?.image);
     return {
-      heroTitle: attrs.hero?.title ?? '',
-      heroAccent: attrs.hero?.accentColor ?? '#D07854',
-      heroSkew:   attrs.hero?.skewDegrees ?? 6,
+      heroTitle:   attrs.hero?.title        ?? '',
+      heroAccent:  attrs.hero?.accentColor  ?? '#D07854',
+      heroSkew:    attrs.hero?.skewDegrees  ?? 6,
       heroImageUrl: url,
       heroImageAlt: alt || attrs.hero?.title || 'Hero',
       body: attrs.body ?? '',
@@ -208,7 +186,7 @@ export async function getRangePage() {
   try {
     const json = await fetchStrapi('/api/range', {
       query: {
-        populate: '*',   
+        populate: '*',
         format:   'text',
         status: process.env.NEXT_PUBLIC_PREVIEW === 'true' ? 'draft' : 'published',
       },
@@ -237,12 +215,24 @@ export async function getRangePage() {
   }
 }
 
-/** ↓ Add this component helper if you store sizes as a repeatable component **/
+/** ↓ Helper for repeatable *Size Option* component */
 export function extractSizes(sizeArray = []) {
-  return sizeArray.map((s) => s?.sizeOption).filter(Boolean);
+  return (
+    sizeArray
+      .map((s) => {
+        const item = s?.attributes ?? s;   // v4 vs v5
+        // support either field name just in case
+        return item.size ?? item.sizeOption;
+      })
+      .filter(Boolean)
+  );
 }
 
-/** Fetch all suppliers (name + slug + full detail) *//** 7 · Suppliers (full detail – used by SupplierBrowser) */
+////////////////////////////////////////////////////////////////////////
+// Suppliers
+////////////////////////////////////////////////////////////////////////
+
+/** 7 · All suppliers, full detail – used by SupplierBrowser */
 export async function getSuppliersWithDetails() {
   const json = await fetchStrapi('/api/suppliers', {
     query: {
@@ -253,19 +243,18 @@ export async function getSuppliersWithDetails() {
   });
 
   return (json.data || []).map((item) => {
-    // works for both v4 (item.attributes) and v5 (fields at top level)
-    const attrs = item.attributes ?? item;
+    const attrs = item.attributes ?? item;         // v4 vs v5
 
     const logo  = getMediaFromStrapi(attrs.logo);
     const cover = getMediaFromStrapi(attrs.coverImage);
 
     return {
-      id:   item.id ?? attrs.id,          // v5 keeps id at top level
+      id:   item.id ?? attrs.id,
       slug: attrs.slug,
       name: attrs.name,
 
-      logoUrl:  logo.url,
-      logoAlt:  logo.alt || attrs.name,
+      logoUrl: logo.url,
+      logoAlt: logo.alt || attrs.name,
 
       coverUrl: cover.url,
       coverAlt: cover.alt || attrs.name,
@@ -273,17 +262,21 @@ export async function getSuppliersWithDetails() {
 
       products: (attrs.products || []).map((p) => {
         const pAttrs = p.attributes ?? p;
+        const img    = getMediaFromStrapi(pAttrs.image);
+
         return {
           id:    p.id ?? pAttrs.id,
           name:  pAttrs.name,
-          sizes: extractSizes(pAttrs.sizes),
+          sizes: extractSizes(pAttrs.sizeOption),   // repeatable component
+          imageUrl: img.url,
+          imageAlt: img.alt || pAttrs.name,
         };
       }),
     };
   });
 }
 
-/** 8 · Single supplier by slug (if you ever need it on its own) */
+/** 8 · Single supplier by slug */
 export async function getSupplierBySlug(slug) {
   const json = await fetchStrapi('/api/suppliers', {
     query: {
@@ -293,8 +286,7 @@ export async function getSupplierBySlug(slug) {
     },
   });
 
-  // first match
-  const raw  = json?.data?.[0];
+  const raw   = json?.data?.[0];
   const attrs = raw?.attributes ?? raw;
   if (!attrs) return null;
 
@@ -308,10 +300,14 @@ export async function getSupplierBySlug(slug) {
     description: attrs.description,
     products: (attrs.products || []).map((p) => {
       const pAttrs = p.attributes ?? p;
+      const img    = getMediaFromStrapi(pAttrs.image);
+
       return {
         id:    p.id ?? pAttrs.id,
         name:  pAttrs.name,
-        sizes: extractSizes(pAttrs.sizes),
+        sizes: extractSizes(pAttrs.sizeOption),
+        imageUrl: img.url,
+        imageAlt: img.alt || pAttrs.name,
       };
     }),
   };
