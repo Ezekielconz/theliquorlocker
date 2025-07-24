@@ -1,37 +1,45 @@
 // app/range/page.js
-import PageHero         from '../../components/PageHero';
-import { getRangePage } from '../../lib/strapi';
-import styles           from '../../styles/Range.module.css';
+import PageHero                 from "../../components/PageHero";
+import { getRangePage,
+         getSuppliersWithDetails } from "../../lib/strapi";
+import SupplierBrowser          from "./SupplierBrowser";
+import styles                   from "../../styles/Range.module.css";
 
-export const revalidate = 60;
+export const revalidate = 60;          // ISR every minute
 
 export default async function RangePage() {
-  const data = await getRangePage();
-  if (!data) return <p>Range content coming soon.</p>;
+  const [page, suppliers] = await Promise.all([
+    getRangePage(),
+    getSuppliersWithDetails(),
+  ]);
+
+  if (!page) return <p>Range content coming soon.</p>;
 
   return (
     <>
       <PageHero
-        title={data.pageTitle}
-        imageUrl={data.heroImageUrl}
-        imageAlt={data.heroImageAlt}
+        title={page.pageTitle}
+        imageUrl={page.heroImageUrl}
+        imageAlt={page.heroImageAlt}
       />
 
       <main className={styles.main}>
-        {data.body && <p className={styles.body}>{data.body}</p>}
+        {page.body && <p className={styles.body}>{page.body}</p>}
 
-        {/* open the PDF in a new tab */}
-        {data.buttonText && data.downloadFileUrl && (
+        {page.buttonText && page.downloadFileUrl && (
           <a
-            href={data.downloadFileUrl}
+            href={page.downloadFileUrl}
             target="_blank"
             rel="noopener noreferrer"
             className={styles.button}
-            aria-label={data.downloadFileAlt}
+            aria-label={page.downloadFileAlt}
           >
-            {data.buttonText}
+            {page.buttonText}
           </a>
         )}
+
+        {/* supplier icons + live detail */}
+        <SupplierBrowser suppliers={suppliers} />
       </main>
     </>
   );

@@ -529,6 +529,36 @@ export interface ApiNavigationNavigation extends Struct.SingleTypeSchema {
   };
 }
 
+export interface ApiProductProduct extends Struct.CollectionTypeSchema {
+  collectionName: 'products';
+  info: {
+    displayName: 'Product';
+    pluralName: 'products';
+    singularName: 'product';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    image: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::product.product'
+    > &
+      Schema.Attribute.Private;
+    name: Schema.Attribute.String;
+    publishedAt: Schema.Attribute.DateTime;
+    sizeOption: Schema.Attribute.Component<'product.size-option', true>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiRangeRange extends Struct.SingleTypeSchema {
   collectionName: 'ranges';
   info: {
@@ -555,6 +585,41 @@ export interface ApiRangeRange extends Struct.SingleTypeSchema {
       Schema.Attribute.Private;
     pageTitle: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiSupplierSupplier extends Struct.CollectionTypeSchema {
+  collectionName: 'suppliers';
+  info: {
+    displayName: 'Supplier';
+    pluralName: 'suppliers';
+    singularName: 'supplier';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    coverImage: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios'
+    >;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    description: Schema.Attribute.Text;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::supplier.supplier'
+    > &
+      Schema.Attribute.Private;
+    logo: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
+    name: Schema.Attribute.String;
+    products: Schema.Attribute.Relation<'oneToMany', 'api::product.product'>;
+    publishedAt: Schema.Attribute.DateTime;
+    slug: Schema.Attribute.UID<'name'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1075,7 +1140,9 @@ declare module '@strapi/strapi' {
       'api::contact.contact': ApiContactContact;
       'api::homepage.homepage': ApiHomepageHomepage;
       'api::navigation.navigation': ApiNavigationNavigation;
+      'api::product.product': ApiProductProduct;
       'api::range.range': ApiRangeRange;
+      'api::supplier.supplier': ApiSupplierSupplier;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;

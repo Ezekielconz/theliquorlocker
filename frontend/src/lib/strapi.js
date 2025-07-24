@@ -208,7 +208,7 @@ export async function getRangePage() {
   try {
     const json = await fetchStrapi('/api/range', {
       query: {
-        populate: '*',     // ← grab heroImage + downloadFile
+        populate: '*',   
         format:   'text',
       },
     });
@@ -234,4 +234,84 @@ export async function getRangePage() {
     console.error('getRangePage error:', err);
     return null;
   }
+}
+
+/** ↓ Add this component helper if you store sizes as a repeatable component **/
+export function extractSizes(sizeArray = []) {
+  return sizeArray.map((s) => s?.sizeOption).filter(Boolean);
+}
+
+/** Fetch all suppliers (name + slug + full detail) *//** 7 · Suppliers (full detail – used by SupplierBrowser) */
+export async function getSuppliersWithDetails() {
+  const json = await fetchStrapi('/api/suppliers', {
+    query: {
+      populate: '*',
+      sort: 'name:asc',
+      format: 'text',
+    },
+  });
+
+  return (json.data || []).map((item) => {
+    // works for both v4 (item.attributes) and v5 (fields at top level)
+    const attrs = item.attributes ?? item;
+
+    const logo  = getMediaFromStrapi(attrs.logo);
+    const cover = getMediaFromStrapi(attrs.coverImage);
+
+    return {
+      id:   item.id ?? attrs.id,          // v5 keeps id at top level
+      slug: attrs.slug,
+      name: attrs.name,
+
+      logoUrl:  logo.url,
+      logoAlt:  logo.alt || attrs.name,
+
+      coverUrl: cover.url,
+      coverAlt: cover.alt || attrs.name,
+      description: attrs.description,
+
+      products: (attrs.products || []).map((p) => {
+        const pAttrs = p.attributes ?? p;
+        return {
+          id:    p.id ?? pAttrs.id,
+          name:  pAttrs.name,
+          sizes: extractSizes(pAttrs.sizes),
+        };
+      }),
+    };
+  });
+}
+
+/** 8 · Single supplier by slug (if you ever need it on its own) */
+export async function getSupplierBySlug(slug) {
+  const json = await fetchStrapi('/api/suppliers', {
+    query: {
+      'filters[slug][$eq]': slug,
+      populate: '*',
+      format: 'text',
+    },
+  });
+
+  // first match
+  const raw  = json?.data?.[0];
+  const attrs = raw?.attributes ?? raw;
+  if (!attrs) return null;
+
+  const cover = getMediaFromStrapi(attrs.coverImage);
+
+  return {
+    name: attrs.name,
+    slug: attrs.slug,
+    coverUrl: cover.url,
+    coverAlt: cover.alt || attrs.name,
+    description: attrs.description,
+    products: (attrs.products || []).map((p) => {
+      const pAttrs = p.attributes ?? p;
+      return {
+        id:    p.id ?? pAttrs.id,
+        name:  pAttrs.name,
+        sizes: extractSizes(pAttrs.sizes),
+      };
+    }),
+  };
 }
