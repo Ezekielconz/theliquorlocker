@@ -9,26 +9,33 @@
   margin: 0;
 }
 
-/* logo card (no caption) */
+/* logo card (uniform box) */
 .card {
+  width: 140px;
+  height: 140px;
+  display: flex;
+  align-items: center;   /* center horizontally */
+  justify-content: center; /* center vertically   */
   background: none;
   border: none;
   cursor: pointer;
   transition: transform 0.15s ease;
 }
 
-/* default: logos look lighter / desaturated */
+/* image fits inside 100×100 square */
 .card img {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
   filter: grayscale(1) brightness(0.3);
   opacity: 0.2;
   transition: filter 0.35s ease, opacity 0.35s ease;
-  -webkit-filter: grayscale(1) brightness(0.3);
 }
 
-/* fallback name box when no logo */
+/* fallback name box gets same 100×100 sizing */
 .fallbackName {
-  width: 120px;
-  height: 120px;
+  width: 100px;
+  height: 100px;
   border-radius: 8px;
   background: #f1f1f1;
   color: #333;
@@ -37,7 +44,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 .5rem;
+  padding: 0 0.5rem;
   text-align: center;
   opacity: 0.2;
   transition: opacity 0.35s ease, background 0.35s ease, color 0.35s ease;
