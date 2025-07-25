@@ -1,4 +1,4 @@
-/* ───────────  DESKTOP / LAPTOP  (≥ 1024 px) ─────────── */
+/* ─────────────────  DESKTOP / LAPTOP  (≥ 1024 px) ───────────────── */
 .hero{
   position:relative;
   display:flex;
@@ -7,7 +7,7 @@
   overflow:hidden;
 }
 
-/* accent band (fades in last) */
+/* accent: diagonal, fades in last, with subtle shadow */
 .hero::after{
   content:"";
   position:absolute;
@@ -16,7 +16,8 @@
   clip-path:polygon(0 60%,100% 10%,100% 30%,0 90%);
   opacity:0;
   animation:accentFade .9s ease forwards;
-  animation-delay:1.2s;
+  animation-delay:.5s;
+  box-shadow:0 8px 20px rgba(0,0,0,.15);   /* drop shadow */
   z-index:0;
   pointer-events:none;
 }
@@ -48,7 +49,7 @@
   background:#D07854;
   clip-path:polygon(0 0,100% 0,100% 20%,0 50%);
   opacity:0;
-  animation:textFade .9s ease forwards; /* pure fade */
+  animation:textFade .9s ease forwards;     /* pure fade */
   z-index:1;
 }
 
@@ -90,15 +91,17 @@
     height:auto;
   }
 
-  /* accent band now sits below */
+  /* accent becomes horizontal band below blocks */
   .hero::after{
     inset:auto;
     bottom:0;
     height:12vh;
     width:100%;
+    background:#E5B7A5;
     clip-path:none;
     animation:accentFade .9s ease forwards;
     animation-delay:1.2s;
+    box-shadow:0 -4px 16px rgba(0,0,0,.15); /* shadow upward */
   }
 
   .imageWrapper{
@@ -114,7 +117,7 @@
     align-items:center;
     text-align:center;
     clip-path:none;
-    animation:textFade .9s ease forwards; /* fade only */
+    animation:textFade .9s ease forwards;
     z-index:2;
   }
 
