@@ -1,38 +1,43 @@
-/* ─────────────────  BASE  (desktop ≥ 1024 px) ───────────────── */
+/* ───────────  DESKTOP / LAPTOP  (≥ 1024 px) ─────────── */
 .hero{
   position:relative;
   display:flex;
   width:100%;
-  height:30vh;           /* cropped banner look */
+  height:30vh;
   overflow:hidden;
 }
 
-/* background accent */
+/* accent band (fades in last) */
 .hero::after{
   content:"";
   position:absolute;
   inset:0;
   background:#E5B7A5;
-  clip-path:polygon(
-    0 60%,
-    100% 10%,
-    100% 30%,
-    0 90%
-  );
+  clip-path:polygon(0 60%,100% 10%,100% 30%,0 90%);
+  opacity:0;
+  animation:accentFade .9s ease forwards;
+  animation-delay:1.2s;
   z-index:0;
   pointer-events:none;
 }
 
-/* left image half */
+/* image half */
 .imageWrapper{
   position:relative;
   flex:0 0 50%;
   clip-path:polygon(0 0,100% 0,100% 50%,0 80%);
   z-index:1;
 }
-.img{object-fit:cover;}
+.img{
+  object-fit:cover;
+  opacity:0;
+  animation:
+    imgFade  .9s ease forwards,      /* quick fade-in */
+    heroZoom 20s ease-in-out forwards;/* slow Ken-Burns */
+  transform-origin:center;
+}
 
-/* right title block */
+/* title block */
 .textWrapper{
   position:relative;
   flex:0 0 50%;
@@ -42,6 +47,8 @@
   padding:2rem 2rem 0 3rem;
   background:#D07854;
   clip-path:polygon(0 0,100% 0,100% 20%,0 50%);
+  opacity:0;
+  animation:textFade .9s ease forwards; /* pure fade */
   z-index:1;
 }
 
@@ -55,50 +62,71 @@
   max-width:14ch;
 }
 
-/* ─────────────────  LAPTOP  (768 – 1023 px) ───────────────── */
+/* ─── KEYFRAMES ─── */
+@keyframes imgFade   {to{opacity:1;}}
+@keyframes heroZoom  {from{transform:scale(1);}to{transform:scale(1.1);} }
+@keyframes textFade  {to{opacity:1;}}
+@keyframes accentFade{to{opacity:1;}}
+
+/* ───────────  LAPTOP  (768–1023 px) ─────────── */
 @media (max-width:1023px){
   .hero{height:40vh;}
 
-  .imageWrapper{clip-path:none;flex:0 0 55%;}
+  .imageWrapper{
+    flex:0 0 55%;
+    clip-path:polygon(0 0,100% 0,100% 55%,0 90%);
+  }
   .textWrapper{
     flex:0 0 45%;
-    clip-path:none;
+    clip-path:polygon(0 0,100% 0,100% 25%,0 55%);
     padding:2rem;
   }
-  .hero::after{clip-path:none;}
 }
 
-/* ─────────────────  TABLET / LARGE MOBILE  (480 – 767 px) ───────────────── */
+/* ───────────  TABLET / LARGE MOBILE  (480–767 px) ─────────── */
 @media (max-width:767px){
   .hero{
     flex-direction:column;
     height:auto;
   }
 
-  .imageWrapper,
-  .textWrapper{
-    flex:0 0 auto;
+  /* accent band now sits below */
+  .hero::after{
+    inset:auto;
+    bottom:0;
+    height:12vh;
     width:100%;
     clip-path:none;
+    animation:accentFade .9s ease forwards;
+    animation-delay:1.2s;
   }
 
   .imageWrapper{
-    height:40vh;        /* keeps aspect on phones */
+    width:100%;
+    height:50vh;
+    min-height:260px;
+    clip-path:none;
   }
 
   .textWrapper{
-    background:#D07854;
+    width:100%;
     padding:1.75rem 1.5rem;
+    align-items:center;
+    text-align:center;
+    clip-path:none;
+    animation:textFade .9s ease forwards; /* fade only */
+    z-index:2;
   }
+
   .title{
     max-width:none;
     font-size:clamp(2rem,7vw,2.8rem);
   }
 }
 
-/* ─────────────────  SMALL MOBILE  (< 480 px) ───────────────── */
+/* ───────────  SMALL MOBILE  (< 480 px) ─────────── */
 @media (max-width:479px){
-  .imageWrapper{height:35vh;}
+  .imageWrapper{height:45vh;}
   .textWrapper{padding:1.5rem 1.25rem;}
   .title{font-size:clamp(1.6rem,8vw,2.2rem);}
 }
