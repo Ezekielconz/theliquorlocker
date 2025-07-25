@@ -2,14 +2,10 @@
 import Image from 'next/image';
 import styles from '../styles/PageHero.module.css';
 
-export default function PageHero({
-  title,
-  imageUrl,
-  imageAlt = '',
-}) {
+export default function PageHero({ title, imageUrl, imageAlt = '' }) {
   return (
     <section className={styles.hero}>
-      {/* left-half image */}
+      {/* left-half (or top on mobile) image */}
       <div className={styles.imageWrapper}>
         {imageUrl && (
           <Image
@@ -22,7 +18,7 @@ export default function PageHero({
         )}
       </div>
 
-      {/* right-half title block */}
+      {/* title block */}
       <div className={styles.textWrapper}>
         <h1 className={styles.title}>{title}</h1>
       </div>

@@ -1,25 +1,29 @@
+/* ─────────────────  BASE  (desktop ≥ 1024 px) ───────────────── */
 .hero{
   position:relative;
   display:flex;
   width:100%;
-  height:30vh;
+  height:30vh;           /* cropped banner look */
   overflow:hidden;
 }
+
+/* background accent */
 .hero::after{
   content:"";
   position:absolute;
   inset:0;
   background:#E5B7A5;
-  clip-path: polygon(
-    0    60%,  /* (1) left edge, 80 % down  – top-left corner      */
-    100% 10%,  /* (2) right edge, 50 % down – top-right corner     */
-    100% 30%,  /* (3) right edge, 55 % down – bottom-right corner  */
-    0    90%   /* (4) left edge, 85 % down  – bottom-left corner   */
+  clip-path:polygon(
+    0 60%,
+    100% 10%,
+    100% 30%,
+    0 90%
   );
   z-index:0;
   pointer-events:none;
 }
 
+/* left image half */
 .imageWrapper{
   position:relative;
   flex:0 0 50%;
@@ -28,6 +32,7 @@
 }
 .img{object-fit:cover;}
 
+/* right title block */
 .textWrapper{
   position:relative;
   flex:0 0 50%;
@@ -36,14 +41,11 @@
   justify-content:flex-start;
   padding:2rem 2rem 0 3rem;
   background:#D07854;
-  text-align:left;
   clip-path:polygon(0 0,100% 0,100% 20%,0 50%);
   z-index:1;
 }
 
 .title{
-  position:relative;
-  z-index:2;
   font-family:'Fraunces',serif;
   font-size:clamp(2.5rem,5vw,4rem);
   font-weight:700;
@@ -51,4 +53,52 @@
   margin:0;
   line-height:1.15;
   max-width:14ch;
+}
+
+/* ─────────────────  LAPTOP  (768 – 1023 px) ───────────────── */
+@media (max-width:1023px){
+  .hero{height:40vh;}
+
+  .imageWrapper{clip-path:none;flex:0 0 55%;}
+  .textWrapper{
+    flex:0 0 45%;
+    clip-path:none;
+    padding:2rem;
+  }
+  .hero::after{clip-path:none;}
+}
+
+/* ─────────────────  TABLET / LARGE MOBILE  (480 – 767 px) ───────────────── */
+@media (max-width:767px){
+  .hero{
+    flex-direction:column;
+    height:auto;
+  }
+
+  .imageWrapper,
+  .textWrapper{
+    flex:0 0 auto;
+    width:100%;
+    clip-path:none;
+  }
+
+  .imageWrapper{
+    height:40vh;        /* keeps aspect on phones */
+  }
+
+  .textWrapper{
+    background:#D07854;
+    padding:1.75rem 1.5rem;
+  }
+  .title{
+    max-width:none;
+    font-size:clamp(2rem,7vw,2.8rem);
+  }
+}
+
+/* ─────────────────  SMALL MOBILE  (< 480 px) ───────────────── */
+@media (max-width:479px){
+  .imageWrapper{height:35vh;}
+  .textWrapper{padding:1.5rem 1.25rem;}
+  .title{font-size:clamp(1.6rem,8vw,2.2rem);}
 }
