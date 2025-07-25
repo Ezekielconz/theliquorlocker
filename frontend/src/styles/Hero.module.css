@@ -1,7 +1,7 @@
 .hero{
   position:relative;
   width:100%;
-  height:100dvh;                     /* full device viewport */
+  height:100dvh;
 }
 
 .overlay{
@@ -15,6 +15,7 @@
   gap:1.5rem;
 }
 
+/* ───── animated heading ───── */
 .heroTitle{
   font-family:inherit;
   font-size:clamp(2.25rem,6vw,4rem);
@@ -23,14 +24,40 @@
   text-decoration:underline;
   text-decoration-thickness:1px;
   line-height:1.1;
-  white-space:pre-line;               /* preserves Strapi line-breaks */
+  white-space:pre-line;
   max-width:40ch;
+  opacity:0;
+  animation:titleReveal 0s 0.19s forwards;
 }
 
+.line{
+  display:block;
+  opacity:0;
+  transform:translateY(15px);
+  animation:fadeSlide 2s ease forwards;
+}
+
+/* keyframes */
+@keyframes fadeSlide{
+  to{opacity:1;transform:translateY(0);}
+}
+@keyframes titleReveal{
+  to{opacity:1;}
+}
+
+/* ───── buttons now fade in after 2nd line ───── */
 .buttons{
   display:flex;
   gap:1rem;
   width:100%;
+  opacity:0;
+  transform:translateY(10px);
+  animation:buttonsReveal .6s ease forwards;
+  animation-delay:1.8s;        /* 0.2 + 0.8*2 = 1.8 */
+}
+
+@keyframes buttonsReveal{
+  to{opacity:1;transform:translateY(0);}
 }
 
 .primary,
@@ -58,26 +85,17 @@
   box-shadow:0 6px 14px rgba(0,0,0,.15);
 }
 
+/* ───── responsive tweaks (unchanged) ───── */
 @media(max-width:1024px){
   .hero{height:100dvh;}
   .overlay{padding:12vh 2rem 0;}
 }
-
 @media(max-width:768px){
-  .overlay{
-    align-items:center;
-    text-align:center;
-    padding:8vh 1.5rem 0;
-  }
+  .overlay{align-items:center;text-align:center;padding:8vh 1.5rem 0;}
   .heroTitle{max-width:none;}
-  .buttons{
-    flex-direction:column;
-    align-items:stretch;
-  }
-  .primary,
-  .secondary{flex:1;min-width:0;}
+  .buttons{flex-direction:column;align-items:stretch;}
+  .primary,.secondary{flex:1;min-width:0;}
 }
-
 @media(max-width:480px){
   .overlay{padding:15vh 1.25rem 0;}
   .heroTitle{font-size:clamp(1.75rem,8vw,2.5rem);}
