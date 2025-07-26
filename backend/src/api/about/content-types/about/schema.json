@@ -29,6 +29,11 @@
     },
     "body": {
       "type": "text"
+    },
+    "cta": {
+      "type": "component",
+      "component": "shared.call-to-action",
+      "repeatable": false
     }
   }
 }

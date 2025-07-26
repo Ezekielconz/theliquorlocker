@@ -1,9 +1,10 @@
 // app/about/page.js
-import PageHero       from '../../components/PageHero';
+import PageHero        from '../../components/PageHero';
+import CallToAction    from '../../components/CallToAction';
 import { getAboutPage } from '../../lib/strapi';
 import styles           from '../../styles/About.module.css';
 
-export const revalidate = 60;
+export const revalidate = 60;   // ISR
 
 export default async function AboutPage() {
   const data = await getAboutPage();
@@ -21,6 +22,9 @@ export default async function AboutPage() {
         <h2 className={styles.heading}>{data.heading}</h2>
         <div className={styles.body}>{data.body}</div>
       </section>
+
+      {/* Call-to-Action – shows only if Strapi has a heading */}
+      <CallToAction {...data.cta} />
     </>
   );
 }

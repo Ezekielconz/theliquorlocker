@@ -1,0 +1,23 @@
+{
+  "collectionName": "components_shared_call_to_actions",
+  "info": {
+    "displayName": "Call-To-Action",
+    "icon": "phone"
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "string"
+    },
+    "body": {
+      "type": "text"
+    },
+    "buttonText": {
+      "type": "string"
+    },
+    "buttonUrl": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

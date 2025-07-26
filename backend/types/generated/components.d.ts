@@ -11,10 +11,25 @@ export interface ProductSizeOption extends Struct.ComponentSchema {
   };
 }
 
+export interface SharedCallToAction extends Struct.ComponentSchema {
+  collectionName: 'components_shared_call_to_actions';
+  info: {
+    displayName: 'Call-To-Action';
+    icon: 'phone';
+  };
+  attributes: {
+    body: Schema.Attribute.Text;
+    buttonText: Schema.Attribute.String;
+    buttonUrl: Schema.Attribute.String;
+    heading: Schema.Attribute.String;
+  };
+}
+
 declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
       'product.size-option': ProductSizeOption;
+      'shared.call-to-action': SharedCallToAction;
     }
   }
 }

@@ -1,5 +1,5 @@
 // src/lib/strapi.js
-// Central helpers for Strapi access (v4 + v5 compatible, tuned for ISR)
+// Central helpers for Strapi v4 + v5 (ISR-friendly)
 
 ////////////////////////////////////////////////////////////
 // Config & constants
@@ -27,10 +27,10 @@ export function getStrapiURL(path = '') {
 }
 
 /**
- * Low-level fetch wrapper.
- * - Accepts `options.query` (object) which is serialised to the URL.
- * - In prod defaults to `force-cache` so ISR can kick in.
- * - Pass `options.nextRevalidate` to override revalidate seconds on this call only.
+ * Low-level fetch wrapper for Strapi JSON APIs.
+ * – Accepts `options.query` (object) which becomes the query-string.
+ * – In prod defaults to `force-cache` so ISR can kick in.
+ * – Pass `options.nextRevalidate` (seconds) to override ISR per call.
  */
 export async function fetchStrapi(
   /** @type {string} */ path,
@@ -72,7 +72,7 @@ export async function fetchStrapi(
 }
 
 /**
- * Normalise document shape across Strapi versions.
+ * Normalise document shape across Strapi major versions.
  * v4: json.data.attributes
  * v5: json.data.<fields> directly
  */
@@ -129,11 +129,22 @@ export async function getHomepage() {
   }
 }
 
+/*----------------------------------------------------------
+ | ABOUT PAGE  (single “cta” component field)
+ +---------------------------------------------------------*/
 export async function getAboutPage() {
   try {
-    const json = await fetchStrapi('/api/about', { query: { populate: '*', format: 'text' } });
+    const json = await fetchStrapi('/api/about', {
+      query: {
+        populate: '*',   // heroImage + cta first level is enough for plain text
+        format:   'text',
+      },
+    });
+
     const attrs = extractAttrs(json);
     const { url, alt } = getMediaFromStrapi(attrs?.heroImage);
+
+    const cta = attrs?.cta ?? {};  // empty when editor hasn’t set it
 
     return {
       heroImageUrl: url,
@@ -141,6 +152,14 @@ export async function getAboutPage() {
       pageTitle:    attrs?.pageTitle ?? '',
       heading:      attrs?.heading   ?? '',
       body:         attrs?.body      ?? '',
+
+      // feed straight into <CallToAction />
+      cta: {
+        heading:    cta.heading    ?? '',
+        body:       cta.body       ?? '',
+        buttonText: cta.buttonText ?? '',
+        buttonUrl:  cta.buttonUrl  ?? '',
+      },
     };
   } catch (err) {
     console.error('getAboutPage error:', err);
@@ -148,22 +167,39 @@ export async function getAboutPage() {
   }
 }
 
+/*----------------------------------------------------------
+ | GENERIC PAGES  (slug) – same CTA support
+ +---------------------------------------------------------*/
 export async function getPageBySlug(slug) {
   try {
     const json = await fetchStrapi('/api/pages', {
-      query: { 'filters[slug][$eq]': slug, populate: 'hero.image' },
+      query: {
+        'filters[slug][$eq]': slug,
+        populate: '*',     // hero + cta
+        format:   'text',
+      },
     });
+
     const attrs = extractAttrs(json)?.[0];
     if (!attrs) return null;
 
     const { url, alt } = getMediaFromStrapi(attrs.hero?.image);
+    const cta = attrs?.cta ?? {};
+
     return {
-      heroTitle:   attrs.hero?.title       ?? '',
-      heroAccent:  attrs.hero?.accentColor ?? '#D07854',
-      heroSkew:    attrs.hero?.skewDegrees ?? 6,
+      heroTitle:    attrs.hero?.title       ?? '',
+      heroAccent:   attrs.hero?.accentColor ?? '#D07854',
+      heroSkew:     attrs.hero?.skewDegrees ?? 6,
       heroImageUrl: url,
       heroImageAlt: alt || attrs.hero?.title || 'Hero',
-      body: attrs.body ?? '',
+      body:         attrs.body ?? '',
+
+      cta: {
+        heading:    cta.heading    ?? '',
+        body:       cta.body       ?? '',
+        buttonText: cta.buttonText ?? '',
+        buttonUrl:  cta.buttonUrl  ?? '',
+      },
     };
   } catch (err) {
     console.error('getPageBySlug', err);
@@ -214,21 +250,16 @@ export function extractSizes(sizeArray = []) {
 }
 
 ////////////////////////////////////////////////////////////////////////
-// Suppliers
+// Suppliers (unchanged)
 ////////////////////////////////////////////////////////////////////////
 
-/* 7 · All suppliers, full detail – used by <SupplierBrowser /> */
 export async function getSuppliersWithDetails() {
   const json = await fetchStrapi('/api/suppliers', {
     query: {
       sort: 'name:asc',
       format: 'text',
-
-      // one-level media
       'populate[logo]': 'true',
       'populate[coverImage]': 'true',
-
-      // deep-populate product image + sizeOption component
       'populate[products][populate][image]': 'true',
       'populate[products][populate][sizeOption]': 'true',
     },
@@ -244,18 +275,14 @@ export async function getSuppliersWithDetails() {
       id:   item.id ?? attrs.id,
       slug: attrs.slug,
       name: attrs.name,
-
       logoUrl: logo.url,
       logoAlt: logo.alt || attrs.name,
-
       coverUrl: cover.url,
       coverAlt: cover.alt || attrs.name,
       description: attrs.description,
-
       products: (attrs.products || []).map((p) => {
         const pAttrs = p.attributes ?? p;
         const img    = getMediaFromStrapi(pAttrs.image);
-
         return {
           id:    p.id ?? pAttrs.id,
           name:  pAttrs.name,
@@ -268,13 +295,11 @@ export async function getSuppliersWithDetails() {
   });
 }
 
-/* 8 · Single supplier by slug */
 export async function getSupplierBySlug(slug) {
   const json = await fetchStrapi('/api/suppliers', {
     query: {
       'filters[slug][$eq]': slug,
       format: 'text',
-
       'populate[coverImage]': 'true',
       'populate[products][populate][image]': 'true',
       'populate[products][populate][sizeOption]': 'true',
@@ -296,7 +321,6 @@ export async function getSupplierBySlug(slug) {
     products: (attrs.products || []).map((p) => {
       const pAttrs = p.attributes ?? p;
       const img    = getMediaFromStrapi(pAttrs.image);
-
       return {
         id:    p.id ?? pAttrs.id,
         name:  pAttrs.name,
