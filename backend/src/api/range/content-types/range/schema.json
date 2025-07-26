@@ -42,6 +42,11 @@
         "videos",
         "audios"
       ]
+    },
+    "cta": {
+      "type": "component",
+      "component": "shared.call-to-action",
+      "repeatable": true
     }
   }
 }

@@ -26,6 +26,11 @@
     },
     "pageTitle": {
       "type": "string"
+    },
+    "cta": {
+      "type": "component",
+      "component": "shared.call-to-action",
+      "repeatable": false
     }
   }
 }
