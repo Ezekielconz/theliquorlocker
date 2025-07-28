@@ -1,36 +1,32 @@
-/* components/CallToAction.module.css  (v2 – colour-forward) */
+/* components/CallToAction.module.css */
 
-/* ───────────────────────── wrapper ───────────────────────── */
 .cta {
   position: relative;
   margin: 6rem auto;
   padding: 3rem 2.5rem;
   max-width: 950px;
   text-align: center;
-
-  /* NEW: rich gradient so the section doesn’t fade into the page */
   background: linear-gradient(135deg, #D07854 0%, #C17558 100%);
   border-radius: 8px;
   overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 }
 
-/* subtle, lighter diagonal highlight that echoes your hero accent */
 .cta::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(255, 248, 246, 0.25);   /* #fff8f6 @ 25 % */
+  background: rgba(255, 248, 246, 0.25);
   clip-path: polygon(0 100%, 100% 70%, 100% 100%, 0 100%);
   pointer-events: none;
   z-index: 0;
 }
 
-/* ───────────────────── heading & body ───────────────────── */
 .heading,
 .body {
   position: relative;
   z-index: 1;
-  color: #ffffff;                  /* flip to white for legibility */
+  color: #ffffff;
 }
 
 .heading {
@@ -48,7 +44,6 @@
   margin: 0 auto 2rem;
 }
 
-/* ─────────────── inverted button for contrast ────────────── */
 .button {
   position: relative;
   z-index: 1;
@@ -56,8 +51,8 @@
   font-weight: 600;
   font-size: .95rem;
   padding: .75rem 1.5rem;
-  color: #C17558;                  /* brand-primary as text */
-  background: #ffffff;             /* white pill on coloured bg */
+  color: #C17558;
+  background: #ffffff;
   text-decoration: none;
   border: none;
   border-radius: 4px;
@@ -68,14 +63,18 @@
 
 .button:hover,
 .button:focus-visible {
-  background: #fff8f6;             /* very-light peach on hover */
-  color: #a55f48;                  /* darker brand shade */
+  background: #fff8f6;
+  color: #a55f48;
   transform: translateY(-2px);
   box-shadow: 0 6px 14px rgba(0, 0, 0, .15);
 }
 
-/* ─────────────────────── responsive tweaks ───────────────── */
 @media (max-width: 768px) {
-  .cta      { margin: 4rem 1rem; padding: 2.5rem 1.5rem; }
-  .button   { width: 100%; }       /* full-width CTA on mobile */
+  .cta {
+    margin: 4rem 1rem;
+    padding: 2.5rem 1.5rem;
+  }
+  .button {
+    width: 100%;
+  }
 }
