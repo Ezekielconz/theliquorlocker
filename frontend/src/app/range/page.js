@@ -1,5 +1,6 @@
 // app/range/page.js
 import PageHero from '../../components/PageHero';
+import CallToAction from '../../components/CallToAction';
 import {
   getRangePage,
   getSuppliersWithDetails,
@@ -7,9 +8,10 @@ import {
 import SupplierBrowser from './SupplierBrowser';
 import styles from '../../styles/Range.module.css';
 
-export const revalidate = 60; // ISR every minute
+export const revalidate = 60;          // ISR every minute
 
 export default async function RangePage() {
+  // parallel data fetch
   const [page, suppliers] = await Promise.all([
     getRangePage(),
     getSuppliersWithDetails(),
@@ -45,6 +47,9 @@ export default async function RangePage() {
         {/* supplier icons + live detail */}
         <SupplierBrowser suppliers={suppliers} />
       </main>
+
+      {/* Call-to-Action (only rendered if Strapi returns one) */}
+      {page.cta && <CallToAction {...page.cta} />}
     </>
   );
 }

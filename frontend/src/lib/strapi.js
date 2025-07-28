@@ -1,44 +1,24 @@
 // src/lib/strapi.js
-// Central helpers for Strapi v4 + v5 (ISR-friendly)
-
-////////////////////////////////////////////////////////////
-// Config & constants
-////////////////////////////////////////////////////////////
-
-export const STRAPI_URL =
-  (process.env.NEXT_PUBLIC_STRAPI_API_URL || '').replace(/\/$/, '');
-
+export const STRAPI_URL = (process.env.NEXT_PUBLIC_STRAPI_API_URL || '').replace(/\/$/, '');
 export const NAVIGATION_SLUG = process.env.STRAPI_NAVIGATION_SLUG || 'navigation';
 export const HOMEPAGE_SLUG   = process.env.STRAPI_HOMEPAGE_SLUG   || 'homepage';
 
-const STRAPI_TOKEN              = process.env.STRAPI_API_TOKEN || null;
-export const DEFAULT_REVALIDATE = 60;           // seconds
+const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN || null;
+export const DEFAULT_REVALIDATE = 60;
 const isDev = process.env.NODE_ENV === 'development';
 
-////////////////////////////////////////////////////////////
-// Utility functions
-////////////////////////////////////////////////////////////
-
-/** Turn a Strapi-relative path ("/uploads/…") into an absolute URL. */
+/* ------------------------------------------------------------------ */
+/* Helpers                                                            */
+/* ------------------------------------------------------------------ */
 export function getStrapiURL(path = '') {
   if (!path) return STRAPI_URL;
   if (path.startsWith('http')) return path;
   return `${STRAPI_URL}${path.startsWith('/') ? '' : '/'}${path}`;
 }
 
-/**
- * Low-level fetch wrapper for Strapi JSON APIs.
- * – Accepts `options.query` (object) which becomes the query-string.
- * – In prod defaults to `force-cache` so ISR can kick in.
- * – Pass `options.nextRevalidate` (seconds) to override ISR per call.
- */
-export async function fetchStrapi(
-  /** @type {string} */ path,
-  /** @type {{query?:Record<string,string>, nextRevalidate?:number}&RequestInit} */ options = {},
-) {
+export async function fetchStrapi(path, options = {}) {
   const { query, nextRevalidate, ...fetchOpts } = options;
 
-  // Build full URL + query-string
   let url = getStrapiURL(path);
   if (query && typeof query === 'object') {
     const params = new URLSearchParams();
@@ -46,12 +26,8 @@ export async function fetchStrapi(
     url += (url.includes('?') ? '&' : '?') + params.toString();
   }
 
-  // Default cache policy
-  const defaultCache = isDev ? 'no-store' : 'force-cache';
-
-  /** @type {RequestInit} */
   const reqInit = {
-    cache: defaultCache,
+    cache: isDev ? 'no-store' : 'force-cache',
     ...fetchOpts,
     headers: {
       ...(STRAPI_TOKEN ? { Authorization: `Bearer ${STRAPI_TOKEN}` } : {}),
@@ -71,17 +47,11 @@ export async function fetchStrapi(
   return res.json();
 }
 
-/**
- * Normalise document shape across Strapi major versions.
- * v4: json.data.attributes
- * v5: json.data.<fields> directly
- */
 function extractAttrs(json) {
   if (!json || !json.data) return null;
-  return json.data.attributes ?? json.data;   // v5: data IS attrs
+  return json.data.attributes ?? json.data;
 }
 
-/** Convert media relation → {url, alt}. */
 export function getMediaFromStrapi(mediaInput) {
   if (!mediaInput) return { url: null, alt: '' };
   const attrs = mediaInput?.data?.attributes ?? mediaInput?.attributes ?? mediaInput;
@@ -91,13 +61,12 @@ export function getMediaFromStrapi(mediaInput) {
   };
 }
 
-////////////////////////////////////////////////////////////
-// Domain-specific helpers
-////////////////////////////////////////////////////////////
-
+/* ------------------------------------------------------------------ */
+/* Site-wide data                                                     */
+/* ------------------------------------------------------------------ */
 export async function getNavigation() {
   try {
-    const json = await fetchStrapi(`/api/${NAVIGATION_SLUG}`, { query: { populate: 'logo' } });
+    const json  = await fetchStrapi(`/api/${NAVIGATION_SLUG}`, { query: { populate: 'logo' } });
     const attrs = extractAttrs(json);
     const { url, alt } = getMediaFromStrapi(attrs?.logo);
     return { logoUrl: url, logoAlt: alt || 'The Liquor Locker' };
@@ -109,15 +78,13 @@ export async function getNavigation() {
 
 export async function getHomepage() {
   try {
-    const json = await fetchStrapi(`/api/${HOMEPAGE_SLUG}`, { query: { populate: 'heroImage' } });
+    const json  = await fetchStrapi(`/api/${HOMEPAGE_SLUG}`, { query: { populate: 'heroImage' } });
     const attrs = extractAttrs(json);
-
     const { url: heroImageUrl, alt: heroImageAltRaw } = getMediaFromStrapi(attrs?.heroImage);
-
     return {
-      heroTitle: attrs?.heroTitle ?? '',
+      heroTitle:     attrs?.heroTitle ?? '',
       heroImageUrl,
-      heroImageAlt: heroImageAltRaw || attrs?.heroTitle || 'Homepage hero',
+      heroImageAlt:  heroImageAltRaw || attrs?.heroTitle || 'Homepage hero',
       buttonOneText: attrs?.buttonOneText ?? '',
       buttonOneUrl:  attrs?.buttonOneUrl  ?? '#',
       buttonTwoText: attrs?.buttonTwoText ?? '',
@@ -129,31 +96,21 @@ export async function getHomepage() {
   }
 }
 
-/*----------------------------------------------------------
- | ABOUT PAGE  (single “cta” component field)
- +---------------------------------------------------------*/
+/* ------------------------------------------------------------------ */
+/* About                                                              */
+/* ------------------------------------------------------------------ */
 export async function getAboutPage() {
   try {
-    const json = await fetchStrapi('/api/about', {
-      query: {
-        populate: '*',   // heroImage + cta first level is enough for plain text
-        format:   'text',
-      },
-    });
-
+    const json  = await fetchStrapi('/api/about', { query: { populate: '*', format: 'text' } });
     const attrs = extractAttrs(json);
     const { url, alt } = getMediaFromStrapi(attrs?.heroImage);
-
-    const cta = attrs?.cta ?? {};  // empty when editor hasn’t set it
-
+    const cta = attrs?.cta ?? {};
     return {
       heroImageUrl: url,
       heroImageAlt: alt,
-      pageTitle:    attrs?.pageTitle ?? '',
-      heading:      attrs?.heading   ?? '',
-      body:         attrs?.body      ?? '',
-
-      // feed straight into <CallToAction />
+      pageTitle: attrs?.pageTitle ?? '',
+      heading:   attrs?.heading   ?? '',
+      body:      attrs?.body      ?? '',
       cta: {
         heading:    cta.heading    ?? '',
         body:       cta.body       ?? '',
@@ -167,19 +124,18 @@ export async function getAboutPage() {
   }
 }
 
-/*----------------------------------------------------------
- | GENERIC PAGES  (slug) – same CTA support
- +---------------------------------------------------------*/
+/* ------------------------------------------------------------------ */
+/* Generic pages by slug                                              */
+/* ------------------------------------------------------------------ */
 export async function getPageBySlug(slug) {
   try {
-    const json = await fetchStrapi('/api/pages', {
+    const json  = await fetchStrapi('/api/pages', {
       query: {
         'filters[slug][$eq]': slug,
-        populate: '*',     // hero + cta
-        format:   'text',
+        populate: '*',
+        format: 'text',
       },
     });
-
     const attrs = extractAttrs(json)?.[0];
     if (!attrs) return null;
 
@@ -193,7 +149,6 @@ export async function getPageBySlug(slug) {
       heroImageUrl: url,
       heroImageAlt: alt || attrs.hero?.title || 'Hero',
       body:         attrs.body ?? '',
-
       cta: {
         heading:    cta.heading    ?? '',
         body:       cta.body       ?? '',
@@ -207,20 +162,35 @@ export async function getPageBySlug(slug) {
   }
 }
 
+/* ------------------------------------------------------------------ */
+/* Range                                                              */
+/* ------------------------------------------------------------------ */
 export async function getRangePage() {
   try {
-    const json = await fetchStrapi('/api/range', {
+    const json  = await fetchStrapi('/api/range', {
       query: {
         populate: '*',
-        format:   'text',
+        format: 'text',
         status: process.env.NEXT_PUBLIC_PREVIEW === 'true' ? 'draft' : 'published',
       },
     });
+
     const attrs = extractAttrs(json);
     if (!attrs) return null;
 
     const hero     = getMediaFromStrapi(attrs.heroImage);
     const download = getMediaFromStrapi(attrs.downloadFile);
+
+    const rawCta  = attrs.cta ?? null;
+    const ctaItem = Array.isArray(rawCta) ? rawCta[0] ?? null : rawCta;
+    const cta     = ctaItem && typeof ctaItem === 'object'
+      ? {
+          heading:    ctaItem.heading    ?? '',
+          body:       ctaItem.body       ?? '',
+          buttonText: ctaItem.buttonText ?? '',
+          buttonUrl:  ctaItem.buttonUrl  ?? '',
+        }
+      : null;
 
     return {
       pageTitle:       attrs.pageTitle  ?? 'Our Range',
@@ -230,6 +200,7 @@ export async function getRangePage() {
       buttonText:      attrs.buttonText ?? '',
       downloadFileUrl: download.url,
       downloadFileAlt: download.alt || 'PDF',
+      cta,
     };
   } catch (err) {
     console.error('getRangePage error:', err);
@@ -237,21 +208,17 @@ export async function getRangePage() {
   }
 }
 
-/* Helper for repeatable *Size Option* component */
+/* ------------------------------------------------------------------ */
+/* Suppliers                                                          */
+/* ------------------------------------------------------------------ */
 export function extractSizes(sizeArray = []) {
-  return (
-    (sizeArray || [])
-      .map((s) => {
-        const item = s?.attributes ?? s;
-        return item.size ?? item.sizeOption ?? null;
-      })
-      .filter(Boolean)
-  );
+  return (sizeArray || [])
+    .map((s) => {
+      const item = s?.attributes ?? s;
+      return item.size ?? item.sizeOption ?? null;
+    })
+    .filter(Boolean);
 }
-
-////////////////////////////////////////////////////////////////////////
-// Suppliers (unchanged)
-////////////////////////////////////////////////////////////////////////
 
 export async function getSuppliersWithDetails() {
   const json = await fetchStrapi('/api/suppliers', {
@@ -267,7 +234,6 @@ export async function getSuppliersWithDetails() {
 
   return (json.data || []).map((item) => {
     const attrs = item.attributes ?? item;
-
     const logo  = getMediaFromStrapi(attrs.logo);
     const cover = getMediaFromStrapi(attrs.coverImage);
 
@@ -275,8 +241,8 @@ export async function getSuppliersWithDetails() {
       id:   item.id ?? attrs.id,
       slug: attrs.slug,
       name: attrs.name,
-      logoUrl: logo.url,
-      logoAlt: logo.alt || attrs.name,
+      logoUrl:  logo.url,
+      logoAlt:  logo.alt || attrs.name,
       coverUrl: cover.url,
       coverAlt: cover.alt || attrs.name,
       description: attrs.description,
