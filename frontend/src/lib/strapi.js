@@ -297,3 +297,70 @@ export async function getSupplierBySlug(slug) {
     }),
   };
 }
+
+/**
+ * Fetch the “Contact” singleton from Strapi
+ */
+export async function getContactPage() {
+  try {
+    // pull in all relational data, and request HTML for rich text fields
+    const json = await fetchStrapi('/api/contact', {
+      query: { populate: '*', format: 'text' }
+    });
+
+    let entry = json.data;
+    if (Array.isArray(entry)) entry = entry[0];
+    if (!entry) return null;
+    const attrs = entry.attributes ?? entry;
+
+    const { url: heroImageUrl, alt: heroImageAlt } =
+      getMediaFromStrapi(attrs.heroImage);
+
+    // Strapi returns rich text as HTML when you use format=text
+    const businessDetails = attrs.businessDetails ?? '';
+
+    const rawCta = attrs.cta ?? {};
+
+    return {
+      pageTitle:       attrs.pageTitle       ?? '',
+      heroImageUrl,
+      heroImageAlt:    attrs.heroImageAlt    ?? heroImageAlt,
+      businessDetails,                     // <-- new field
+      cta: {
+        heading:    rawCta.heading    ?? '',
+        body:       rawCta.body       ?? '',
+        buttonText: rawCta.buttonText ?? '',
+        buttonUrl:  rawCta.buttonUrl  ?? ''
+      }
+    };
+  } catch (err) {
+    console.error('getContactPage error:', err);
+    return null;
+  }
+}
+
+export async function getBusinessInfo() {
+  try {
+    // populate all relations so you get every field
+    const json = await fetchStrapi('/api/business-info', {
+      query: { populate: '*' }
+    });
+
+    let entry = json.data;
+    if (Array.isArray(entry)) entry = entry[0];
+    if (!entry) return null;
+
+    const attrs = entry.attributes ?? entry;
+
+    return {
+      companyName:  attrs.companyName   ?? '',
+      address:      attrs.address       ?? '', // rich-text HTML
+      phone:        attrs.phone         ?? '',
+      email:        attrs.email         ?? '',
+      openingHours: attrs.openingHours  ?? ''  // rich-text HTML
+    };
+  } catch (err) {
+    console.error('getBusinessInfo error:', err);
+    return null;
+  }
+}

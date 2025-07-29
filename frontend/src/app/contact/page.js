@@ -1,67 +1,51 @@
-'use client';
+// app/contact/page.js
+import PageHero        from '@/components/PageHero';
+import ContactForm     from '@/components/ContactForm';
+import CallToAction    from '@/components/CallToAction';
+import { getContactPage, getBusinessInfo } from '@/lib/strapi';
+import styles          from '@/styles/Contact.module.css';
 
-import { useState } from 'react';
+export const revalidate = 60;
 
-export default function ContactPage() {
-  const [form, setForm] = useState({ name: '', email: '', message: '' });
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // TODO: hook up to your API/Strapi endpoint
-    alert(`Thanks, ${form.name}! We got your message.`);
-  };
+export default async function ContactPage() {
+  const [pageData, biz] = await Promise.all([
+    getContactPage(),
+    getBusinessInfo()
+  ]);
+
+  if (!pageData) {
+    return <p>Contact page not found.</p>;
+  }
 
   return (
-    <main style={{ padding: '2rem', fontFamily: 'Fraunces, serif' }}>
-      <h1>Contact Us</h1>
-      <form onSubmit={handleSubmit} style={{ maxWidth: 400 }}>
-        <label>
-          Name
-          <input
-            type="text"
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            required
-            style={{ width: '100%', marginBottom: '1rem' }}
+    <>
+      <PageHero
+        title={pageData.pageTitle}
+        imageUrl={pageData.heroImageUrl}
+        imageAlt={pageData.heroImageAlt}
+      />
+
+      <section className={styles.contactSection}>
+        <div className={styles.details}>
+          <h3>{biz.companyName}</h3>
+          <div
+            className={styles.address}
+            dangerouslySetInnerHTML={{ __html: biz.address }}
           />
-        </label>
-        <label>
-          Email
-          <input
-            type="email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-            required
-            style={{ width: '100%', marginBottom: '1rem' }}
+          <p>{biz.phone}</p>
+          <p>
+            <a href={`mailto:${biz.email}`}>{biz.email}</a>
+          </p>
+          <div
+            className={styles.openingHours}
+            dangerouslySetInnerHTML={{ __html: biz.openingHours }}
           />
-        </label>
-        <label>
-          Message
-          <textarea
-            name="message"
-            value={form.message}
-            onChange={handleChange}
-            required
-            style={{ width: '100%', height: '120px', marginBottom: '1rem' }}
-          />
-        </label>
-        <button
-          type="submit"
-          style={{
-            padding: '0.75rem 1.5rem',
-            backgroundColor: '#C17558',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 4,
-            cursor: 'pointer',
-          }}
-        >
-          Send Message
-        </button>
-      </form>
-    </main>
+        </div>
+
+        <ContactForm />
+      </section>
+
+      <CallToAction {...pageData.cta} />
+    </>
   );
 }

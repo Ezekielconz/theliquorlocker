@@ -1,28 +1,45 @@
 /* styles/About.module.css */
 
+/* ── Container ──────────────────────────────────────────────────────────── */
 .content {
   max-width: 800px;
-  margin: 0 auto;
-  padding: 0 2rem;
-  font-family: 'Fraunces', serif;
-  color: #212121;
+  margin: 0 auto 5rem;
+  padding: 0 1rem;
+  font-family: var(--font-sans), sans-serif;
+  color: #252525;
 }
 
+/* ── Heading ────────────────────────────────────────────────────────────── */
 .heading {
-  font-size: 2rem;
-  font-weight: bold;
+  font-family: var(--font-raleway), var(--font-sans), sans-serif;
+  font-weight: 900;
+  font-size: clamp(2rem, 5vw, 3rem);
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
+  color: #C17558;
 }
 
+/* ── Body copy ──────────────────────────────────────────────────────────── */
 .body {
-  white-space: pre-line; 
-  line-height: 1.6;
-  font-size: 1.1rem;
+  font-family: var(--font-sans), sans-serif;
+  font-size: 1.15rem;
+  line-height: 1.8;
+  white-space: pre-line;
+  margin-bottom: 2rem;
 }
 
-@media (max-width:479px){
+/* ── Mobile tweaks ───────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
   .content {
-    margin: 3rem 0 5rem 0
+    margin: 2rem auto 3rem;
+    padding: 0 1.5rem;
+  }
+  .heading {
+    font-size: clamp(1.75rem, 6vw, 2.5rem);
+    margin-bottom: 1.5rem;
+  }
+  .body {
+    font-size: 1rem;
+    line-height: 1.6;
   }
 }
