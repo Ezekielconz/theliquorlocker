@@ -4,18 +4,19 @@ import Link from 'next/link'
 import styles from '../styles/CallToAction.module.css'
 
 export default function CallToAction({ heading, body, buttonText, buttonUrl }) {
-  if (!heading) return null
-
+  // Hooks must be called unconditionally, so move useMemo above any return
   const bubbles = useMemo(() => {
     const count = Math.floor(Math.random() * 10) + 5  // 5–14 bubbles
     return Array.from({ length: count }, (_, i) => ({
       id: i,
-      left:     `${Math.random() * 100}%`,                           // anywhere across width
-      size:     `${Math.random() * (16 - 6) + 6}px`,                // 6–16px diameter
-      duration: `${Math.random() * (8 - 4) + 4}s`,                   // 4–8s rise
-      delay:    `${Math.random() * 4}s`,                             // 0–4s before starting
+      left:     `${Math.random() * 100}%`,               // anywhere across width
+      size:     `${Math.random() * (16 - 6) + 6}px`,     // 6–16px diameter
+      duration: `${Math.random() * (8 - 4) + 4}s`,       // 4–8s rise
+      delay:    `${Math.random() * 4}s`,                 // 0–4s before starting
     }))
   }, [])
+
+  if (!heading) return null
 
   return (
     <aside className={styles.cta}>
