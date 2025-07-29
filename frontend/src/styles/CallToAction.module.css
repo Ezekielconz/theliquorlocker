@@ -1,4 +1,4 @@
-/* components/CallToAction.module.css */
+/* styles/CallToAction.module.css */
 
 .cta {
   position: relative;
@@ -10,16 +10,6 @@
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-}
-
-.cta::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 248, 246, 0.25);
-  clip-path: polygon(0 100%, 100% 70%, 100% 100%, 0 100%);
-  pointer-events: none;
-  z-index: 0;
 }
 
 .heading,
@@ -77,4 +67,41 @@
   .button {
     width: 100%;
   }
+}
+
+.waveContainer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 80px;
+  z-index: 0;
+  animation: waveFloat 4s ease-in-out infinite;
+}
+
+.waveSvg {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  animation: waveMove 10s linear infinite;
+}
+
+.waveSvg svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: top;
+  transform: scaleY(2);
+}
+
+@keyframes waveMove {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes waveFloat {
+  0%, 100% { transform: translateY(0); }
+   50%     { transform: translateY(-10px); }
 }
