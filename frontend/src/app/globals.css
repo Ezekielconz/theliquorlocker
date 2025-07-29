@@ -1,5 +1,8 @@
 /* ── src/app/globals.css ─────────────────────────────────────────────────── */
 
+/* Import Raleway Black 900 for use in the hero */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
+
 /* Import Tailwind’s base layers (via @tailwind directive or compiled build) */
 @import 'tailwindcss';
 
@@ -47,7 +50,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), sans-serif;
-  font-weight: 300;  
+  font-weight: 300;
   letter-spacing: 0.015em;           /* luxe micro-tracking */
   -webkit-font-smoothing: antialiased;
 }

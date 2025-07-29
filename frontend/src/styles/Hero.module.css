@@ -1,102 +1,119 @@
-.hero{
-  position:relative;
-  width:100%;
-  height:100dvh;
+/* styles/Hero.module.css */
+
+.hero {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
 }
 
-.overlay{
-  position:absolute;
-  inset:0;
-  display:flex;
-  flex-direction:column;
-  justify-content:flex-start;
-  align-items:flex-start;
-  padding:18vh 2rem 0;
-  gap:1.5rem;
+.particlesCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 2;
 }
 
-/* ───── animated heading ───── */
-.heroTitle{
-  font-family:inherit;
-  font-size:clamp(2.25rem,6vw,4rem);
-  font-weight:700;
-  color:#212121;
-  text-decoration:underline;
-  text-decoration-thickness:1px;
-  line-height:1.1;
-  white-space:pre-line;
-  max-width:40ch;
-  opacity:0;
-  animation:titleReveal 0s 0.19s forwards;
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 18vh 2rem 0;
+  gap: 1.5rem;
+  z-index: 1;
 }
 
-.line{
-  display:block;
-  opacity:0;
-  transform:translateY(15px);
-  animation:fadeSlide 2s ease forwards;
+.heroTitle {
+  font-family: 'Raleway', var(--font-sans), sans-serif;
+  font-weight: 900;
+  font-size: 4em;
+  text-transform: uppercase;
+  color: #ffffff;
+  line-height: 1.1;
+  white-space: pre-line;
+  max-width: 40ch;
+
+  opacity: 0;
+  animation: titleReveal 0s 0.19s forwards;
 }
 
-/* keyframes */
-@keyframes fadeSlide{
-  to{opacity:1;transform:translateY(0);}
-}
-@keyframes titleReveal{
-  to{opacity:1;}
-}
-
-/* ───── buttons now fade in after 2nd line ───── */
-.buttons{
-  display:flex;
-  gap:1rem;
-  width:100%;
-  opacity:0;
-  transform:translateY(10px);
-  animation:buttonsReveal .6s ease forwards;
-  animation-delay:1.8s;        /* 0.2 + 0.8*2 = 1.8 */
+.line {
+  display: block;
+  opacity: 0;
+  transform: translateY(15px);
+  animation: fadeSlide 2s ease forwards;
 }
 
-@keyframes buttonsReveal{
-  to{opacity:1;transform:translateY(0);}
+.buttons {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: buttonsReveal 0.6s ease forwards;
+  animation-delay: 1.8s;
 }
 
 .primary,
-.secondary{
-  font-family:inherit;
-  font-weight:500;
-  font-size:.95rem;
-  padding:.65rem 1.25rem;
-  background:#C17558;
-  color:#fff;
-  text-decoration:none;
-  border:none;
-  border-radius:4px;
-  text-align:center;
-  flex:0 0 auto;
-  min-width:110px;
-  transition:background .25s,transform .25s,box-shadow .25s;
+.secondary {
+  font-family: inherit;
+  font-weight: 500;
+  font-size: .95rem;
+  padding: .65rem 1.25rem;
+  background: #C17558;
+  color: #fff;
+  text-decoration: none;
+  border: none;
+  border-radius: 4px;
+  text-align: center;
+  flex: 0 0 auto;
+  min-width: 110px;
+  transition: background .25s, transform .25s, box-shadow .25s;
 }
 .primary:hover,
 .secondary:hover,
 .primary:focus-visible,
-.secondary:focus-visible{
-  background:#a55f48;
-  transform:translateY(-2px);
-  box-shadow:0 6px 14px rgba(0,0,0,.15);
+.secondary:focus-visible {
+  background: #a55f48;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0,0,0,.15);
 }
 
-/* ───── responsive tweaks (unchanged) ───── */
-@media(max-width:1024px){
-  .hero{height:100dvh;}
-  .overlay{padding:12vh 2rem 0;}
+@keyframes fadeSlide {
+  to { opacity: 1; transform: translateY(0); }
 }
-@media(max-width:768px){
-  .overlay{align-items:center;text-align:center;padding:8vh 1.5rem 0;}
-  .heroTitle{max-width:none;}
-  .buttons{flex-direction:column;align-items:stretch;}
-  .primary,.secondary{flex:1;min-width:0;}
+@keyframes titleReveal {
+  to { opacity: 1; }
 }
-@media(max-width:480px){
-  .overlay{padding:15vh 1.25rem 0;}
-  .heroTitle{font-size:clamp(1.75rem,8vw,2.5rem);}
+@keyframes buttonsReveal {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 1024px) {
+  .hero { height: 100dvh; }
+  .overlay { padding: 12vh 2rem 0; }
+}
+@media (max-width: 768px) {
+  .overlay {
+    align-items: center;
+    text-align: center;
+    padding: 8vh 1.5rem 0;
+  }
+  .heroTitle { max-width: none; }
+  .buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .primary,
+  .secondary { flex: 1; min-width: 0; }
+}
+@media (max-width: 480px) {
+  .overlay { padding: 15vh 1.25rem 0; }
+  .heroTitle { font-size: clamp(1.75rem, 8vw, 2.5rem); }
 }
