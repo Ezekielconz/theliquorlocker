@@ -1,7 +1,7 @@
 // ── src/app/layout.js ───────────────────────────────────────────────────────
 export const revalidate = 60;
 
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Geist, Geist_Mono, Raleway } from 'next/font/google';
 import './globals.css';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -23,6 +23,12 @@ const geistMono = Geist_Mono({
   variable: '--font-mono',
 });
 
+const raleway = Raleway({
+  subsets: ['latin'],
+  weight: ['900'],
+  variable: '--font-raleway',
+});
+
 export const metadata = {
   title: 'The Liquor Locker',
   description: 'Wine, Spirits & Beer Distributors',
@@ -33,7 +39,10 @@ export default async function RootLayout({ children }) {
 
   return (
     /* ↓ Attach the font *variables* to <html>. They’ll cascade globally. */
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html
+      lang="en"
+      className={`${geistSans.variable} ${geistMono.variable} ${raleway.variable}`}
+    >
       <body className="antialiased">
         <Navbar
           logoUrl={navData?.logoUrl ?? null}
